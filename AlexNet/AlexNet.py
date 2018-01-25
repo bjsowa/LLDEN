@@ -34,7 +34,7 @@ cifar_valid_labels = cifar_full_train_labels[40000:]
 
 # Parameters
 epochs = 10
-batch_size = 1
+batch_size = 10
 display_step = 20
 
 learning_rate = 0.005
@@ -94,7 +94,7 @@ with tf.Session() as sess:
             batch_y = np.zeros((batch_size, n_classes))
             batch_y[np.arange(batch_size), batch_labels] = 1
 
-            print( batch_y )
+            #print( batch_y )
 
             sess.run(optimizer, feed_dict={x: batch_x, y: batch_y,
                 keep_prob: dropout})
@@ -106,7 +106,7 @@ with tf.Session() as sess:
                                                       y: batch_y,
                                                       keep_prob: 1.})
 
-                LOG("Iteration # " + str(step*batch_size) + ", Minibatch Loss= " + \
+                LOG("Iteration # " + str(index) + ", Minibatch Loss= " + \
                     "{:.6f}".format(loss) + ", Training Accuracy= " + \
                     "{:.5f}".format(acc))
 

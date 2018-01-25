@@ -32,31 +32,31 @@ def alex_net(x, n_classes, dropout, BN_bool):
     # Store layers weight & bias
     weights = {
         # Input image 224x224x3, 96 kernels of size 11x11x3
-        'wc1': tf.Variable(tf.random_normal([11, 11, 3, 96])),
+        'wc1': tf.Variable(tf.random_normal([5, 5, 3, 64])),
         # Input activation map 55x55x96, 256 kernels of size 5x5x48
-        'wc2': tf.Variable(tf.random_normal([5, 5, 96, 256])),
+        'wc2': tf.Variable(tf.random_normal([5, 5, 64, 128])),
         # Input activation map 27x27x256, 384 kernels of size 3x3x256
-        'wc3': tf.Variable(tf.random_normal([3, 3, 256, 384])),
+        'wc3': tf.Variable(tf.random_normal([5, 5, 128, 256])),
         # Input activation map 13x13x384, 384 kernels of size 3x3x384
-        'wc4': tf.Variable(tf.random_normal([3, 3, 384, 384])),
+        'wc4': tf.Variable(tf.random_normal([5, 5, 256, 256])),
         # Input activation map 13x13x384, 256 kernels of size 3x3x384
-        'wc5': tf.Variable(tf.random_normal([3, 3, 384, 256])),
+        'wc5': tf.Variable(tf.random_normal([5, 5, 256, 128])),
         # Input activation map 7x7x256, 4096 outputs
-        'wd1': tf.Variable(tf.random_normal([7*7*256, 4096])),
+        'wd1': tf.Variable(tf.random_normal([4*4*128, 384])),
         # Input activation map 4096 vector, 4096 outputs
-        'wd2': tf.Variable(tf.random_normal([4096, 4096])),
+        'wd2': tf.Variable(tf.random_normal([384, 192])),
         # 4096 inputs, 20 outputs (class prediction)
-        'out': tf.Variable(tf.random_normal([4096, n_classes]))
+        'out': tf.Variable(tf.random_normal([192, n_classes]))
     }
 
     biases = {
-        'bc1': tf.Variable(tf.random_normal([96])),
-        'bc2': tf.Variable(tf.random_normal([256])),
-        'bc3': tf.Variable(tf.random_normal([384])),
-        'bc4': tf.Variable(tf.random_normal([384])),
-        'bc5': tf.Variable(tf.random_normal([256])),
-        'bd1': tf.Variable(tf.random_normal([4096])),
-        'bd2': tf.Variable(tf.random_normal([4096])),
+        'bc1': tf.Variable(tf.random_normal([64])),
+        'bc2': tf.Variable(tf.random_normal([128])),
+        'bc3': tf.Variable(tf.random_normal([256])),
+        'bc4': tf.Variable(tf.random_normal([256])),
+        'bc5': tf.Variable(tf.random_normal([128])),
+        'bd1': tf.Variable(tf.random_normal([384])),
+        'bd2': tf.Variable(tf.random_normal([192])),
         'out': tf.Variable(tf.random_normal([n_classes]))
     }
     
@@ -64,10 +64,10 @@ def alex_net(x, n_classes, dropout, BN_bool):
     # Why reshape to -1 is a placeholder that says "adjust as necessary to match the size needed for the full tensor." 
     # It's a way of making the code be independent of the input batch size, 
     # so that you can change your pipeline and not have to adjust the batch size everywhere in the code.
-    x = tf.reshape(x, shape=[-1, 224, 224, 3])
+    x = tf.reshape(x, shape=[-1, 32, 32, 3])
 
     # Convolution Layer
-    conv1 = conv2d(x, weights['wc1'], biases['bc1'], strides=4, BN_bool=BN_bool)
+    conv1 = conv2d(x, weights['wc1'], biases['bc1'], strides=1, BN_bool=BN_bool)
     # Max Pooling (down-sampling)
     conv1 = maxpool2d(conv1, z=3, k=2)
 
