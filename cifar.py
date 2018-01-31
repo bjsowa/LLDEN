@@ -55,6 +55,9 @@ def main():
     print("==> creating model")
     model = AlexNet(num_classes=100)
 
+    if CUDA:
+        model = model.cuda()
+
     print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
 
     criterion = nn.CrossEntropyLoss()
@@ -82,11 +85,15 @@ def train(trainloader, model, criterion, optimizer, epoch):
     top5 = AverageMeter()
     end = time.time()
 
-    bar = Bar('Processing', max=len(trainloader))
+    bar = Bar('Training', max=len(trainloader))
     for batch_idx, (inputs, targets) in enumerate(trainloader):
 
         inputs = Variable(inputs)
         targets = Variable(targets)
+
+        if CUDA:
+            inputs = inputs.cuda()
+            targets = targets.cuda()
 
         #compute output
         outputs = model(inputs)
