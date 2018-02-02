@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import time
+import shutil
 
 import torch
 import torch.nn as nn
@@ -34,7 +35,7 @@ LR_DROP = 0.5
 EPOCHS_DROP = 10
 
 # MISC
-EPOCHS = 300
+EPOCHS = 100
 CUDA = True
 
 best_acc = 0  # best test accuracy
@@ -68,7 +69,7 @@ def main():
     testset = dataloader(root=DATA, train=False, download=False, transform=transform_test)
     testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
-    print("==> creating model")
+    print("==> Creating model")
     model = AlexNet(num_classes=100)
 
     if CUDA:
@@ -91,6 +92,25 @@ def main():
 
         train_loss, train_acc = train(trainloader, model, criterion, optimizer )
         test_loss, test_acc = train(testloader, model, criterion, test = True )
+
+        # save model
+        is_best = test_acc > best_acc
+        best_acc = max(test_acc, best_acc)
+        save_checkpoint({
+            'epoch': epoch + 1,
+            'state_dict': model.state_dict(),
+            'acc': test_acc,
+            'optimizer': optimizer.state_dict()
+            }, is_best)
+
+    filepath_best = os.path.join(CHECKPOINT, "best.pt")
+    checkpoint = torch.load(filepath_best)
+    model.load_state_dict(checkpoint['state_dict'])
+
+    #test_loss, test_acc = train(testloader, model, criterion, test = True )
+
+    # TODO
+    # Calculate AUROC for each class (One vs All)
 
 
 def train(batchloader, model, criterion, optimizer = None, test = False):
@@ -168,6 +188,13 @@ def adjust_learning_rate(optimizer, epoch):
         LEARNING_RATE *= LR_DROP
         for param_group in optimizer.param_groups:
             param_group['lr'] = LEARNING_RATE
+
+def save_checkpoint(state, is_best):
+    filepath = os.path.join(CHECKPOINT, "last.pt")
+    torch.save(state, filepath)
+    if is_best:
+        filepath_best = os.path.join(CHECKPOINT, "best.pt")
+        shutil.copyfile(filepath, filepath_best)
 
 if __name__ == '__main__':
     main()
