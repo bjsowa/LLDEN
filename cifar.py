@@ -21,17 +21,17 @@ CHECKPOINT = "./checkpoints"
 DATA = "./data"
 
 # BATCH
-BATCH_SIZE = 8
+BATCH_SIZE = 256
 NUM_WORKERS = 4
 
 # SGD
 LEARNING_RATE = 0.1
 MOMENTUM = 0.9
-WEIGHT_DECAY = 5e-4
+WEIGHT_DECAY = 1e-4
 
 # MISC
 EPOCHS = 300
-CUDA = False
+CUDA = True
 
 best_acc = 0  # best test accuracy
 
@@ -46,10 +46,22 @@ def main():
     dataloader = datasets.CIFAR100
     num_classes = 100
 
-    trainset = dataloader(root=DATA, train=True, download=True, transform=transforms.ToTensor())
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
+    trainset = dataloader(root=DATA, train=True, download=True, transform=transform_train)
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
-    testset = dataloader(root=DATA, train=False, download=False, transform=transforms.ToTensor())
+    testset = dataloader(root=DATA, train=False, download=False, transform=transform_test)
     testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
     print("==> creating model")
