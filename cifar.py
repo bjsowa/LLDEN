@@ -21,7 +21,7 @@ CHECKPOINT = "./checkpoints"
 DATA = "./data"
 
 # BATCH
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 NUM_WORKERS = 4
 
 # SGD
@@ -71,12 +71,17 @@ def main():
 
         print('\nEpoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
-        train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch)
+        train_loss, train_acc = train(trainloader, model, criterion, optimizer )
+        test_loss, test_acc = train(testloader, model, criterion, test = True )
 
 
-def train(trainloader, model, criterion, optimizer, epoch):
-    # switch to train mode
-    model.train()
+def train(batchloader, model, criterion, optimizer = None, test = False):
+    
+    # switch to train or evaluate mode
+    if test:
+        model.eval()
+    else:
+        model.train()
 
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -85,15 +90,22 @@ def train(trainloader, model, criterion, optimizer, epoch):
     top5 = AverageMeter()
     end = time.time()
 
-    bar = Bar('Training', max=len(trainloader))
-    for batch_idx, (inputs, targets) in enumerate(trainloader):
+    if test:
+        bar = Bar('Testing', max=len(batchloader))
+    else:
+        bar = Bar('Training', max=len(batchloader))
 
-        inputs = Variable(inputs)
-        targets = Variable(targets)
+    for batch_idx, (inputs, targets) in enumerate(batchloader):
+
+        # measure data loading time
+        data_time.update(time.time() - end)
 
         if CUDA:
             inputs = inputs.cuda()
             targets = targets.cuda()
+
+        inputs = Variable(inputs)
+        targets = Variable(targets)
 
         #compute output
         outputs = model(inputs)
@@ -105,10 +117,11 @@ def train(trainloader, model, criterion, optimizer, epoch):
         top1.update(prec1[0], inputs.size(0))
         top5.update(prec5[0], inputs.size(0))
 
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        if not test:
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -117,15 +130,14 @@ def train(trainloader, model, criterion, optimizer, epoch):
         # plot progress
         bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
                     batch=batch_idx + 1,
-                    size=len(trainloader),
+                    size=len(batchloader),
                     data=data_time.avg,
                     bt=batch_time.avg,
                     total=bar.elapsed_td,
                     eta=bar.eta_td,
                     loss=losses.avg,
                     top1=top1.avg,
-                    top5=top5.avg,
-                    )
+                    top5=top5.avg)
         bar.next()
 
     bar.finish()
