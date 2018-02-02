@@ -29,6 +29,10 @@ LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 WEIGHT_DECAY = 1e-4
 
+# Step Decay
+LR_DROP = 0.5
+EPOCHS_DROP = 10
+
 # MISC
 EPOCHS = 300
 CUDA = True
@@ -80,6 +84,8 @@ def main():
                 )
 
     for epoch in range(EPOCHS):
+
+        adjust_learning_rate(optimizer, epoch + 1)
 
         print('\nEpoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
@@ -154,6 +160,14 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
 
     bar.finish()
     return (losses.avg, top1.avg)
+
+def adjust_learning_rate(optimizer, epoch):
+    global LEARNING_RATE
+
+    if epoch % EPOCHS_DROP == 0:
+        LEARNING_RATE *= LR_DROP
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = LEARNING_RATE
 
 if __name__ == '__main__':
     main()
