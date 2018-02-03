@@ -18,25 +18,25 @@ from alexnet import AlexNet
 from utils import *
 
 # PATHS
-CHECKPOINT = "./checkpoints"
-DATA = "./data"
+CHECKPOINT    = "./checkpoints"
+DATA          = "./data"
 
 # BATCH
-BATCH_SIZE = 256
-NUM_WORKERS = 4
+BATCH_SIZE    = 256
+NUM_WORKERS   = 4
 
 # SGD
 LEARNING_RATE = 0.1
-MOMENTUM = 0.9
-WEIGHT_DECAY = 1e-4
+MOMENTUM      = 0.9
+WEIGHT_DECAY  = 1e-4
 
 # Step Decay
-LR_DROP = 0.5
-EPOCHS_DROP = 10
+LR_DROP       = 0.5
+EPOCHS_DROP   = 10
 
 # MISC
-EPOCHS = 100
-CUDA = True
+EPOCHS        = 100
+CUDA          = True
 
 best_acc = 0  # best test accuracy
 
@@ -109,9 +109,50 @@ def main():
 
     #test_loss, test_acc = train(testloader, model, criterion, test = True )
 
-    # TODO
-    # Calculate AUROC for each class (One vs All)
+    # scores = TODO
+    # targets = TODO
+    # area = AUROC(scores, targets)
 
+def AUROC(scores, targets):
+    """Calculates the Area Under the Curve.s
+    Args:
+        scores: Probabilities that target should be possitively classified.
+        targets: 0 for negative, and 1 for positive examples.
+    """
+    # case when number of elements added are 0
+    if scores.shape[0] == 0:
+        return 0.5
+    
+    # sorting the arrays
+    scores, sortind = torch.sort(torch.from_numpy(
+        scores), dim=0, descending=True)
+    scores = scores.numpy()
+    sortind = sortind.numpy()
+
+    # creating the roc curve
+    tpr = np.zeros(shape=(scores.size + 1), dtype=np.float64)
+    fpr = np.zeros(shape=(scores.size + 1), dtype=np.float64)
+
+    for i in range(1, scores.size + 1):
+        if targets[sortind[i - 1]] == 1:
+            tpr[i] = tpr[i - 1] + 1
+            fpr[i] = fpr[i - 1]
+        else:
+            tpr[i] = tpr[i - 1]
+            fpr[i] = fpr[i - 1] + 1
+
+    tpr /= (targets.sum() * 1.0)
+    fpr /= ((targets - 1.0).sum() * -1.0)
+
+    # calculating area under curve using trapezoidal rule
+    n = tpr.shape[0]
+    h = fpr[1:n] - fpr[0:n - 1]
+    sum_h = np.zeros(fpr.shape)
+    sum_h[0:n - 1] = h
+    sum_h[1:n] += h
+    area = (sum_h * tpr).sum() / 2.0
+
+    return area
 
 def train(batchloader, model, criterion, optimizer = None, test = False):
     
