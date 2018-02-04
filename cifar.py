@@ -6,7 +6,7 @@ import shutil
 
 import torch
 import torch.nn as nn
-# import torch.backends.cudnn as cudnn
+import torch.backends.cudnn as cudnn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
@@ -71,9 +71,11 @@ def main():
 
     print("==> Creating model")
     model = AlexNet(num_classes=100)
+    model = torch.nn.DataParallel(model)
 
     if CUDA:
         model = model.cuda()
+        cudnn.benchmark = True
 
     print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
 
