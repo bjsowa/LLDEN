@@ -9,7 +9,6 @@ import torch.nn as nn
 # import torch.backends.cudnn as cudnn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torch.utils.data.sampler import Sampler
 from torch.autograd import Variable
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
@@ -33,10 +32,10 @@ WEIGHT_DECAY = 1e-4
 
 # Step Decay
 LR_DROP = 0.5
-EPOCHS_DROP = 10
+EPOCHS_DROP = 30
 
 # MISC
-EPOCHS = 100
+EPOCHS = 300
 CUDA = True
 
 best_acc = 0  # best test accuracy
@@ -66,12 +65,12 @@ def main():
 
     trainset = dataloader(root=DATA, train=True, download=True, transform=transform_train)
     trainlabels = list(i[1] for i in trainset) 
-    trainsampler = PrefixSampler(trainlabels, 10)
+    trainsampler = ClassSampler(trainlabels, range(10))
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE, sampler = trainsampler, num_workers=NUM_WORKERS)
 
     testset = dataloader(root=DATA, train=False, download=False, transform=transform_test)
     testlabels = list(i[1] for i in testset)
-    testsampler = PrefixSampler(testlabels, 10)
+    testsampler = ClassSampler(testlabels, range(10))
     testloader = DataLoader(testset, batch_size=BATCH_SIZE, sampler = testsampler, num_workers=NUM_WORKERS)
 
     print("==> Creating model")
@@ -203,21 +202,6 @@ def save_checkpoint(state, is_best):
         filepath_best = os.path.join(CHECKPOINT, "best.pt")
         shutil.copyfile(filepath, filepath_best)
 
-class PrefixSampler(Sampler):
-
-    def __init__(self, labels, prefix):
-        self.indices = []
-        for i, label in enumerate(labels):
-            if label < prefix:
-                self.indices.append(i)
-
-
-    def __iter__(self):
-        #return (i for i in range(self.prefix))
-        return (self.indices[i] for i in torch.randperm(len(self.indices)))
-
-    def __len__(self):
-        return len(self.indices)
 
 if __name__ == '__main__':
     main()

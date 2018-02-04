@@ -9,11 +9,13 @@ import sys
 import time
 import math
 
+import torch
 import torch.nn as nn
 import torch.nn.init as init
+from torch.utils.data.sampler import Sampler
 from torch.autograd import Variable
 
-__all__ = ['get_mean_and_std', 'init_params', 'mkdir_p', 'AverageMeter']
+__all__ = ['get_mean_and_std', 'init_params', 'mkdir_p', 'AverageMeter', 'ClassSampler']
 
 
 def get_mean_and_std(dataset):
@@ -74,3 +76,19 @@ class AverageMeter(object):
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+class ClassSampler(Sampler):
+
+    def __init__(self, labels, classes):
+        self.indices = []
+        for i, label in enumerate(labels):
+            if label in classes:
+                self.indices.append(i)
+
+
+    def __iter__(self):
+        #return (i for i in range(self.prefix))
+        return (self.indices[i] for i in torch.randperm(len(self.indices)))
+
+    def __len__(self):
+        return len(self.indices)
