@@ -1,6 +1,9 @@
 from __future__ import print_function, absolute_import
 
-__all__ = ['accuracy']
+import torch
+import numpy as np
+
+__all__ = ['accuracy', 'AUROC']
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
@@ -16,3 +19,44 @@ def accuracy(output, target, topk=(1,)):
         correct_k = correct[:k].view(-1).float().sum(0)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
+
+def AUROC(scores, targets):
+    """Calculates the Area Under the Curve.
+    Args:
+        scores: Probabilities that target should be possitively classified.
+        targets: 0 for negative, and 1 for positive examples.
+    """
+    # case when number of elements added are 0
+    if scores.shape[0] == 0:
+        return 0.5
+    
+    # sorting the arrays
+    scores, sortind = torch.sort(torch.from_numpy(
+        scores), dim=0, descending=True)
+    scores = scores.numpy()
+    sortind = sortind.numpy()
+
+    # creating the roc curve
+    tpr = np.zeros(shape=(scores.size + 1), dtype=np.float64)
+    fpr = np.zeros(shape=(scores.size + 1), dtype=np.float64)
+
+    for i in range(1, scores.size + 1):
+        if targets[sortind[i - 1]] == 1:
+            tpr[i] = tpr[i - 1] + 1
+            fpr[i] = fpr[i - 1]
+        else:
+            tpr[i] = tpr[i - 1]
+            fpr[i] = fpr[i - 1] + 1
+
+    tpr /= (targets.sum() * 1.0)
+    fpr /= ((targets - 1.0).sum() * -1.0)
+
+    # calculating area under curve using trapezoidal rule
+    n = tpr.shape[0]
+    h = fpr[1:n] - fpr[0:n - 1]
+    sum_h = np.zeros(fpr.shape)
+    sum_h[0:n - 1] = h
+    sum_h[1:n] += h
+    area = (sum_h * tpr).sum() / 2.0
+
+    return area
