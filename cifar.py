@@ -111,6 +111,8 @@ def main():
 
     auroc = calc_avg_AUROC(model, testloader, num_classes)
 
+    print( auroc )
+
 def calc_avg_AUROC(model, batchloader, num_classes):
     """Calculates average of the AUROC for each class in the dataset
     """
@@ -138,7 +140,7 @@ def calc_avg_AUROC(model, batchloader, num_classes):
 
     for i in range(num_classes):
         scores = sum_outputs[:, i]
-        sum_area += AUROC(scores.data.numpy(), (sum_targets == i).data.numpy())
+        sum_area += AUROC(scores.cpu().data.numpy(), (sum_targets == i).cpu().data.numpy())
     
     return (sum_area / num_classes)
 

@@ -25,7 +25,7 @@ class AlexNet(nn.Module):
             nn.Linear(192,num_classes)
         )
 
-        self.softmax = nn.Softmax()
+        self.softmax = nn.Softmax(dim = 1)
 
     def forward(self, x):
         x = self.features(x)
