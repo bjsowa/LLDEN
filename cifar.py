@@ -16,11 +16,11 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from progress.bar import Bar
 
-from alexnet import AlexNet
+from models import AlexNet
 from utils import *
 
 # PATHS
-CHECKPOINT    = "./checkpoints"
+CHECKPOINT    = "./checkpoints/cifar"
 DATA          = "./data"
 
 # BATCH

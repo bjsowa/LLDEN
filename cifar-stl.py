@@ -14,11 +14,11 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from progress.bar import Bar
 
-from alexnet import AlexNet
+from models import AlexNet
 from utils import *
 
 # PATHS
-CHECKPOINT = "./checkpoints"
+CHECKPOINT = "./checkpoints/cifar-stl"
 DATA = "./data"
 
 # BATCH
@@ -82,6 +82,7 @@ def main():
     print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
 
     criterion = nn.CrossEntropyLoss()
+    criterionL1 = nn.L1Loss
     optimizer = optim.SGD(model.parameters(), 
                     lr=LEARNING_RATE, 
                     momentum=MOMENTUM, 
