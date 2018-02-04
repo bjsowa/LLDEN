@@ -25,8 +25,14 @@ class AlexNet(nn.Module):
             nn.Linear(192,num_classes)
         )
 
+        self.softmax = nn.Softmax()
+
     def forward(self, x):
         x = self.features(x)
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
         return x
+
+    def probabilities(self, x):
+        logits = self(x)
+        return self.softmax(logits)

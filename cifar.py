@@ -4,6 +4,8 @@ import os
 import time
 import shutil
 
+import numpy as np
+
 import torch
 import torch.nn as nn
 # import torch.backends.cudnn as cudnn
@@ -107,14 +109,41 @@ def main():
     checkpoint = torch.load(filepath_best)
     model.load_state_dict(checkpoint['state_dict'])
 
-    #test_loss, test_acc = train(testloader, model, criterion, test = True )
+    auroc = calc_avg_AUROC(model, testloader, num_classes)
 
-    # scores = TODO
-    # targets = TODO
-    # area = AUROC(scores, targets)
+def calc_avg_AUROC(model, batchloader, num_classes):
+    """Calculates average of the AUROC for each class in the dataset
+    """
+    sum_targets = None
+    sum_outputs = None
+    sum_area = 0
+
+    for batch_idx, (inputs, targets) in enumerate(batchloader):
+
+        if CUDA:
+            inputs = inputs.cuda()
+            targets = targets.cuda()
+
+        inputs = Variable(inputs)
+
+        if sum_targets is None:
+            sum_targets = Variable(targets)
+        else:
+            sum_targets = torch.cat((sum_targets, Variable(targets)), 0)
+
+        if sum_outputs is None:
+            sum_outputs = model.probabilities(inputs)
+        else:
+            sum_outputs = torch.cat((sum_outputs, model.probabilities(inputs)), 0)
+
+    for i in range(num_classes):
+        scores = sum_outputs[:, i]
+        sum_area += AUROC(scores.data.numpy(), (sum_targets == i).data.numpy())
+    
+    return (sum_area / num_classes)
 
 def AUROC(scores, targets):
-    """Calculates the Area Under the Curve.s
+    """Calculates the Area Under the Curve.
     Args:
         scores: Probabilities that target should be possitively classified.
         targets: 0 for negative, and 1 for positive examples.
@@ -176,6 +205,9 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
 
     for batch_idx, (inputs, targets) in enumerate(batchloader):
 
+        if batch_idx > 2:
+            break
+
         # measure data loading time
         data_time.update(time.time() - end)
 
@@ -188,6 +220,9 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
 
         #compute output
         outputs = model(inputs)
+        # print('inputs:', inputs)
+        # print('outputs:', outputs)
+        # print('ppbs:', model.probabilities(inputs))
         loss = criterion(outputs, targets)
 
         # measure accuracy and record loss
