@@ -113,78 +113,6 @@ def main():
 
     print( auroc )
 
-def calc_avg_AUROC(model, batchloader, num_classes):
-    """Calculates average of the AUROC for each class in the dataset
-    """
-    sum_targets = None
-    sum_outputs = None
-    sum_area = 0
-
-    for batch_idx, (inputs, targets) in enumerate(batchloader):
-
-        if CUDA:
-            inputs = inputs.cuda()
-            targets = targets.cuda()
-
-        inputs = Variable(inputs)
-
-        if sum_targets is None:
-            sum_targets = Variable(targets)
-        else:
-            sum_targets = torch.cat((sum_targets, Variable(targets)), 0)
-
-        if sum_outputs is None:
-            sum_outputs = model.probabilities(inputs)
-        else:
-            sum_outputs = torch.cat((sum_outputs, model.probabilities(inputs)), 0)
-
-    for i in range(num_classes):
-        scores = sum_outputs[:, i]
-        sum_area += AUROC(scores.cpu().data.numpy(), (sum_targets == i).cpu().data.numpy())
-    
-    return (sum_area / num_classes)
-
-def AUROC(scores, targets):
-    """Calculates the Area Under the Curve.
-    Args:
-        scores: Probabilities that target should be possitively classified.
-        targets: 0 for negative, and 1 for positive examples.
-    """
-    # case when number of elements added are 0
-    if scores.shape[0] == 0:
-        return 0.5
-    
-    # sorting the arrays
-    scores, sortind = torch.sort(torch.from_numpy(
-        scores), dim=0, descending=True)
-    scores = scores.numpy()
-    sortind = sortind.numpy()
-
-    # creating the roc curve
-    tpr = np.zeros(shape=(scores.size + 1), dtype=np.float64)
-    fpr = np.zeros(shape=(scores.size + 1), dtype=np.float64)
-
-    for i in range(1, scores.size + 1):
-        if targets[sortind[i - 1]] == 1:
-            tpr[i] = tpr[i - 1] + 1
-            fpr[i] = fpr[i - 1]
-        else:
-            tpr[i] = tpr[i - 1]
-            fpr[i] = fpr[i - 1] + 1
-
-    tpr /= (targets.sum() * 1.0)
-    fpr /= ((targets - 1.0).sum() * -1.0)
-
-    # calculating area under curve using trapezoidal rule
-    n = tpr.shape[0]
-    h = fpr[1:n] - fpr[0:n - 1]
-    sum_h = np.zeros(fpr.shape)
-    sum_h[0:n - 1] = h
-    sum_h[1:n] += h
-    area = (sum_h * tpr).sum() / 2.0
-
-    return area
-
 def train(batchloader, model, criterion, optimizer = None, test = False):
     
     # switch to train or evaluate mode
@@ -252,6 +180,37 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
 
     bar.finish()
     return (losses.avg, top1.avg)
+
+def calc_avg_AUROC(model, batchloader, num_classes):
+    """Calculates average of the AUROC for each class in the dataset
+    """
+    sum_targets = None
+    sum_outputs = None
+    sum_area = 0
+
+    for batch_idx, (inputs, targets) in enumerate(batchloader):
+
+        if CUDA:
+            inputs = inputs.cuda()
+            targets = targets.cuda()
+
+        inputs = Variable(inputs)
+
+        if sum_targets is None:
+            sum_targets = Variable(targets)
+        else:
+            sum_targets = torch.cat((sum_targets, Variable(targets)), 0)
+
+        if sum_outputs is None:
+            sum_outputs = model.probabilities(inputs)
+        else:
+            sum_outputs = torch.cat((sum_outputs, model.probabilities(inputs)), 0)
+
+    for i in range(num_classes):
+        scores = sum_outputs[:, i]
+        sum_area += AUROC(scores.cpu().data.numpy(), (sum_targets == i).cpu().data.numpy())
+    
+    return (sum_area / num_classes)
 
 def adjust_learning_rate(optimizer, epoch):
     global LEARNING_RATE
