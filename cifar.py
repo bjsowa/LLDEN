@@ -205,9 +205,6 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
 
     for batch_idx, (inputs, targets) in enumerate(batchloader):
 
-        if batch_idx > 2:
-            break
-
         # measure data loading time
         data_time.update(time.time() - end)
 
@@ -220,9 +217,6 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
 
         #compute output
         outputs = model(inputs)
-        # print('inputs:', inputs)
-        # print('outputs:', outputs)
-        # print('ppbs:', model.probabilities(inputs))
         loss = criterion(outputs, targets)
 
         # measure accuracy and record loss
