@@ -18,7 +18,6 @@ class AlexNet(nn.Module):
             nn.Conv2d(256, 128, kernel_size=5, padding=1),
             nn.ReLU(inplace=True)
         )
-        #self.classifier = nn.Linear(, num_classes)
         self.classifier = nn.Sequential(
             nn.Linear(4*128, 384),
             nn.Linear(384, 192),

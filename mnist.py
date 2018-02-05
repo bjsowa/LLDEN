@@ -17,11 +17,11 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from progress.bar import Bar
 
-from models import AlexNet
+from models import FeedForward
 from utils import *
 
 # PATHS
-CHECKPOINT    = "./checkpoints/cifar"
+CHECKPOINT    = "./checkpoints/mnist"
 DATA          = "./data"
 
 # BATCH
@@ -29,16 +29,16 @@ BATCH_SIZE    = 256
 NUM_WORKERS   = 4
 
 # SGD
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.01
 MOMENTUM      = 0.9
 WEIGHT_DECAY  = 1e-4
 
 # Step Decay
 LR_DROP       = 0.5
-EPOCHS_DROP   = 10
+EPOCHS_DROP   = 20
 
 # MISC
-EPOCHS        = 100
+EPOCHS        = 200
 CUDA          = True
 
 # Manual seed
@@ -59,19 +59,19 @@ def main():
 
     print('==> Preparing dataset')
 
-    dataloader = datasets.CIFAR100
-    num_classes = 100
+    dataloader = datasets.MNIST
+    num_classes = 10
 
     transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
+        #transforms.RandomCrop(32, padding=4),
+        #transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        transforms.Normalize((0.1307,), (0.3081,)),
     ])
 
     transform_test = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        transforms.Normalize((0.1307,), (0.3081,)),
     ])
 
     trainset = dataloader(root=DATA, train=True, download=True, transform=transform_train)
@@ -81,7 +81,7 @@ def main():
     testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
 
     print("==> Creating model")
-    model = AlexNet(num_classes=100)
+    model = FeedForward(num_classes=num_classes)
 
     if CUDA:
         model = model.cuda()
