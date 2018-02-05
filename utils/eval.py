@@ -1,6 +1,7 @@
 from __future__ import print_function, absolute_import
 
 import torch
+from torch.autograd import Variable
 import numpy as np
 
 __all__ = ['accuracy', 'calc_avg_AUROC', 'AUROC']

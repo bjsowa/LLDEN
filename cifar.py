@@ -124,6 +124,9 @@ def main():
     checkpoint = torch.load(filepath_best)
     model.load_state_dict(checkpoint['state_dict'])
 
+    if CUDA:
+        model = model.module
+
     auroc = calc_avg_AUROC(model, testloader, range(num_classes), CUDA)
 
     print( auroc )
