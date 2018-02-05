@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import
 import torch
 import numpy as np
 
-__all__ = ['accuracy', 'AUROC']
+__all__ = ['accuracy', 'calc_avg_AUROC', 'AUROC']
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
@@ -19,6 +19,31 @@ def accuracy(output, target, topk=(1,)):
         correct_k = correct[:k].view(-1).float().sum(0)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
+
+def calc_avg_AUROC(model, batchloader, classes, use_cuda):
+    """Calculates average of the AUROC for selected classes in the dataset
+    """
+    sum_targets = torch.cuda.LongTensor() if use_cuda else torch.LongTensor()
+    sum_outputs = torch.cuda.FloatTensor() if use_cuda else torch.FloatTensor()
+
+    for batch_idx, (inputs, targets) in enumerate(batchloader):
+
+        if use_cuda:
+            inputs = inputs.cuda()
+            targets = targets.cuda()
+
+        inputs = Variable(inputs)
+        probs = model.probabilities(inputs).data
+
+        sum_targets = torch.cat((sum_targets, targets), 0)
+        sum_outputs = torch.cat((sum_outputs, probs), 0)
+
+    sum_area = 0
+    for i in classes:
+        scores = sum_outputs[:, i]
+        sum_area += AUROC(scores.cpu().numpy(), (sum_targets == i).cpu().numpy())
+    
+    return (sum_area / len(classes))
 
 def AUROC(scores, targets):
     """Calculates the Area Under the Curve.

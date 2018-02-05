@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import time
 import shutil
+import random
 
 import numpy as np
 
@@ -40,6 +41,14 @@ EPOCHS_DROP   = 10
 EPOCHS        = 100
 CUDA          = True
 
+# Manual seed
+SEED = 20
+
+random.seed(SEED)
+torch.manual_seed(SEED)
+if CUDA:
+    torch.cuda.manual_seed_all(SEED)
+
 best_acc = 0  # best test accuracy
 
 def main():
@@ -73,10 +82,10 @@ def main():
 
     print("==> Creating model")
     model = AlexNet(num_classes=100)
-    model = torch.nn.DataParallel(model)
 
     if CUDA:
         model = model.cuda()
+        model = torch.nn.DataParallel(model)
         cudnn.benchmark = True
 
     print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
@@ -87,6 +96,8 @@ def main():
                     momentum=MOMENTUM, 
                     weight_decay=WEIGHT_DECAY
                 )
+
+    print("==> Learning")
 
     for epoch in range(EPOCHS):
 
@@ -107,11 +118,13 @@ def main():
             'optimizer': optimizer.state_dict()
             }, is_best)
 
+    print("==> Calculating AUROC")
+
     filepath_best = os.path.join(CHECKPOINT, "best.pt")
     checkpoint = torch.load(filepath_best)
     model.load_state_dict(checkpoint['state_dict'])
 
-    auroc = calc_avg_AUROC(model, testloader, num_classes)
+    auroc = calc_avg_AUROC(model, testloader, range(num_classes), CUDA)
 
     print( auroc )
 
@@ -182,37 +195,6 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
 
     bar.finish()
     return (losses.avg, top1.avg)
-
-def calc_avg_AUROC(model, batchloader, num_classes):
-    """Calculates average of the AUROC for each class in the dataset
-    """
-    sum_targets = None
-    sum_outputs = None
-    sum_area = 0
-
-    for batch_idx, (inputs, targets) in enumerate(batchloader):
-
-        if CUDA:
-            inputs = inputs.cuda()
-            targets = targets.cuda()
-
-        inputs = Variable(inputs)
-
-        if sum_targets is None:
-            sum_targets = Variable(targets)
-        else:
-            sum_targets = torch.cat((sum_targets, Variable(targets)), 0)
-
-        if sum_outputs is None:
-            sum_outputs = model.probabilities(inputs)
-        else:
-            sum_outputs = torch.cat((sum_outputs, model.probabilities(inputs)), 0)
-
-    for i in range(num_classes):
-        scores = sum_outputs[:, i]
-        sum_area += AUROC(scores.cpu().data.numpy(), (sum_targets == i).cpu().data.numpy())
-    
-    return (sum_area / num_classes)
 
 def adjust_learning_rate(optimizer, epoch):
     global LEARNING_RATE
