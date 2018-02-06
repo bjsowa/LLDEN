@@ -53,7 +53,7 @@ def loss2(model, outputs, targets):
 def loss3(model, outputs, targets):
     loss = nn.CrossEntropyLoss()
     coeff = 1e-4
-    layers = [p for p in model.parameters()]
+    layers = list(model.parameters())
     reg = torch.norm(layers[-1], 1)
     return loss(outputs, targets) + coeff * reg
 
@@ -61,7 +61,14 @@ def loss4(model, outputs, targets):
     pass
 
 def bfs(model):
-    pass
+    model = copy.deepcopy(model)
+
+    prev_active = []
+    for layer in reversed(list(model.parameters())):
+        for neuron in layer:
+            pass
+        prev_active = active
+
 
 def incremental_learning(datasets, tau, sigma):
 
@@ -82,7 +89,7 @@ def selective_training(model):
        associated with them.
     """
     # freeze all layers except the last one
-    layers = [p for p in model.parameters()]
+    layers = list(model.parameters())
     for layer in layers[:-1]:
         layer.requires_grad = False
 
