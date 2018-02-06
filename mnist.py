@@ -23,7 +23,6 @@ from utils import *
 
 # PATHS
 CHECKPOINT    = "./checkpoints/mnist"
-DATA          = "./data"
 
 # BATCH
 BATCH_SIZE    = 256
@@ -60,35 +59,7 @@ def main():
 
     print('==> Preparing dataset')
 
-    dataloader = datasets.MNIST
-    num_classes = 10
-
-    transform_train = transforms.Compose([
-        transforms.RandomRotation(180),
-        transforms.ToTensor(),
-        GaussianNoise(0, 0.5)
-    ])
-
-    transform_test = transforms.Compose([
-        transforms.RandomRotation(180),
-        transforms.ToTensor(),
-        GaussianNoise(0, 0.5)
-    ])
-
-    trainset = dataloader(root=DATA, train=True, download=True, transform=transform_train)
-    testset = dataloader(root=DATA, train=False, download=False, transform=transform_test)
-
-    allset = ConcatDataset([trainset, testset])
-    labels = list(i[1] for i in allset)
-
-    trainsampler = ClassSampler(labels, range(10), amount=1000)
-    trainloader = DataLoader(allset, batch_size=BATCH_SIZE, sampler=trainsampler, num_workers=NUM_WORKERS)
-
-    validsampler = ClassSampler(labels, range(10), amount=200, start_from=1000)
-    validloader = DataLoader(allset, batch_size=BATCH_SIZE, sampler=validsampler, num_workers=NUM_WORKERS)
-
-    testsampler = ClassSampler(labels, range(10), amount=5000, start_from=1200)
-    testloader = DataLoader(allset, batch_size=BATCH_SIZE, sampler=testsampler, num_workers=NUM_WORKERS)
+    trainloader, validloader, testloader = load_MNIST(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
 
     # l = [0] * 10
     # for (inputs, targets) in testloader:
@@ -107,7 +78,7 @@ def main():
     # savefig("fig.png")
 
     print("==> Creating model")
-    model = FeedForward(num_classes=num_classes)
+    model = FeedForward(num_classes=10)
 
     if CUDA:
         model = model.cuda()
@@ -154,7 +125,7 @@ def main():
         model = model.module
 
     train(testloader, model, criterion, test=True)
-    auroc = calc_avg_AUROC(model, testloader, range(num_classes), CUDA)
+    auroc = calc_avg_AUROC(model, testloader, range(10), CUDA)
 
     print( 'AUROC: {}'.format(auroc) )
 

@@ -1,12 +1,39 @@
+from __future__ import print_function
+
+import os
+import time
+import shutil
+import random
+
+import numpy as np
+from matplotlib.pyplot import imshow, savefig
+
 import torch
 import torch.nn as nn
+import torch.backends.cudnn as cudnn
 import torch.optim as optim
+from torch.utils.data import DataLoader, ConcatDataset
+from torch.autograd import Variable
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
+from progress.bar import Bar
+
+from models import FeedForward
+from utils import *
+
+
+# BATCH
+BATCH_SIZE    = 256
+NUM_WORKERS   = 4
 
 CUDA = True
 
 def main():
-    #TODO: get datasets, tau (threshold), sigma (threshold)...
-    pass
+
+    print('==> Preparing dataset')
+
+    trainloader, validloader, testloader = load_MNIST(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
+
 
 def setup_model():
     model = AlexNet(num_classes=100)
@@ -42,8 +69,7 @@ def incremental_learning(datasets, tau, sigma):
 
     for t, dataset in enumerate(datasets):
         if t == 0:
-            criterion = lambda outputs, targets: 
-                            loss1(model, output, targets)
+            criterion = (lambda outputs, targets: loss1(model, output, targets))
             train(dataset, model, loss1)
         else:
             loss, model = selective_training(prev_model)
@@ -55,10 +81,10 @@ def selective_training(model):
        task and retrains the network parameters
        associated with them.
     """
-     # freeze all layers except the last one
-     layers = [p for p in model.parameters()]
-     for layer in layers[:-1]:
-         layer.requires_grad = False
+    # freeze all layers except the last one
+    layers = [p for p in model.parameters()]
+    for layer in layers[:-1]:
+        layer.requires_grad = False
 
     # train the network and receive sparse
     # connections on the last layer
@@ -88,3 +114,7 @@ def network_split_duplication(weights, sigma):
     """
     #TODO: implementation
     pass
+
+
+if __name__ == '__main__':
+    main()
