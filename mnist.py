@@ -12,10 +12,7 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
-from torch.utils.data import DataLoader, ConcatDataset
 from torch.autograd import Variable
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
 from progress.bar import Bar
 
 from models import FeedForward
