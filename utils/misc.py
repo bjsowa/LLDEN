@@ -1,21 +1,12 @@
-'''Some helper functions for PyTorch, including:
-    - get_mean_and_std: calculate the mean and std value of dataset.
-    - msr_init: net parameter initialization.
-    - progress_bar: progress bar mimic xlua.progress.
-'''
 import errno
 import os
-import sys
-import time
-import math
 
 import torch
-import torch.nn as nn
-import torch.nn.init as init
 from torch.utils.data.sampler import Sampler
-from torch.autograd import Variable
 
-__all__ = ['mkdir_p', 'AverageMeter', 'ClassSampler']
+from PIL import ImageFilter
+
+__all__ = ['mkdir_p', 'AverageMeter', 'ClassSampler', 'GaussianNoise']
 
 
 def mkdir_p(path):
@@ -49,12 +40,23 @@ class AverageMeter(object):
 
 class ClassSampler(Sampler):
 
-    def __init__(self, labels, classes):
+    def __init__(self, labels, classes, start_from = 0, amount = None):
         self.indices = []
+        start = [start_from] * len(classes)
+        left = [amount] * len(classes)
+
         for i, label in enumerate(labels):
             if label in classes:
-                self.indices.append(i)
+                idx = classes.index(label)
 
+                if start[idx] == 0:
+                    if left[idx] is None:
+                        self.indices.append(i)
+                    elif left[idx] > 0:
+                        self.indices.append(i)
+                        left[idx] -= 1
+                else: 
+                    start[idx] -= 1
 
     def __iter__(self):
         #return (i for i in range(self.prefix))
@@ -62,3 +64,16 @@ class ClassSampler(Sampler):
 
     def __len__(self):
         return len(self.indices)
+
+class GaussianNoise(object):
+
+    def __init__(self, mean, stddev):
+        self.mean = mean
+        self.stddev = stddev
+
+    def __call__(self, img):
+        noise = img.clone()
+        noise = noise.normal_(self.mean, self.stddev)
+        new_img = img + noise
+        new_img = torch.clamp(new_img, 0, 1)
+        return new_img

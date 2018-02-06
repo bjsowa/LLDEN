@@ -6,12 +6,13 @@ import shutil
 import random
 
 import numpy as np
+from matplotlib.pyplot import imshow, savefig
 
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, ConcatDataset
 from torch.autograd import Variable
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
@@ -63,22 +64,47 @@ def main():
     num_classes = 10
 
     transform_train = transforms.Compose([
-        #transforms.RandomCrop(32, padding=4),
-        #transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(180),
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),
+        GaussianNoise(0, 0.5)
     ])
 
     transform_test = transforms.Compose([
+        transforms.RandomRotation(180),
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),
+        GaussianNoise(0, 0.5)
     ])
 
     trainset = dataloader(root=DATA, train=True, download=True, transform=transform_train)
-    trainloader = DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
-
     testset = dataloader(root=DATA, train=False, download=False, transform=transform_test)
-    testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+
+    allset = ConcatDataset([trainset, testset])
+    labels = list(i[1] for i in allset)
+
+    trainsampler = ClassSampler(labels, range(10), amount=1000)
+    trainloader = DataLoader(allset, batch_size=BATCH_SIZE, sampler=trainsampler, num_workers=NUM_WORKERS)
+
+    validsampler = ClassSampler(labels, range(10), amount=200, start_from=1000)
+    validloader = DataLoader(allset, batch_size=BATCH_SIZE, sampler=validsampler, num_workers=NUM_WORKERS)
+
+    testsampler = ClassSampler(labels, range(10), amount=5000, start_from=1200)
+    testloader = DataLoader(allset, batch_size=BATCH_SIZE, sampler=testsampler, num_workers=NUM_WORKERS)
+
+    # l = [0] * 10
+    # for (inputs, targets) in testloader:
+    #     for target in targets:
+    #         l[target] += 1
+
+    # for i in range(10):
+    #     print(i, l[i])
+
+    # img = trainset[30][0].numpy()
+    # img = np.transpose(img, (1,2,0))
+    # img = img.reshape(28,28)
+
+    # imshow(img, cmap="gray")
+
+    # savefig("fig.png")
 
     print("==> Creating model")
     model = FeedForward(num_classes=num_classes)
@@ -106,7 +132,7 @@ def main():
         print('\nEpoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
         train_loss, train_acc = train(trainloader, model, criterion, optimizer )
-        test_loss, test_acc = train(testloader, model, criterion, test = True )
+        test_loss, test_acc = train(validloader, model, criterion, test = True )
 
         # save model
         is_best = test_acc > best_acc
@@ -127,9 +153,10 @@ def main():
     if CUDA:
         model = model.module
 
+    train(testloader, model, criterion, test=True)
     auroc = calc_avg_AUROC(model, testloader, range(num_classes), CUDA)
 
-    print( auroc )
+    print( 'AUROC: {}'.format(auroc) )
 
 def train(batchloader, model, criterion, optimizer = None, test = False):
     
