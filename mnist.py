@@ -6,6 +6,7 @@ import shutil
 import random
 
 import numpy as np
+from matplotlib.pyplot import imshow, savefig
 
 import torch
 import torch.nn as nn
@@ -63,15 +64,15 @@ def main():
     num_classes = 10
 
     transform_train = transforms.Compose([
-        #transforms.RandomCrop(32, padding=4),
-        #transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(180),
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),
+        GaussianNoise(0, 0.5)
     ])
 
     transform_test = transforms.Compose([
+        transforms.RandomRotation(180),
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),
+        GaussianNoise(0, 0.5)
     ])
 
     trainset = dataloader(root=DATA, train=True, download=True, transform=transform_train)
@@ -79,6 +80,14 @@ def main():
 
     testset = dataloader(root=DATA, train=False, download=False, transform=transform_test)
     testloader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+
+    # img = trainset[30][0].numpy()
+    # img = np.transpose(img, (1,2,0))
+    # img = img.reshape(28,28)
+
+    # imshow(img, cmap="gray")
+
+    # savefig("fig.png")
 
     print("==> Creating model")
     model = FeedForward(num_classes=num_classes)
