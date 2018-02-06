@@ -40,12 +40,23 @@ class AverageMeter(object):
 
 class ClassSampler(Sampler):
 
-    def __init__(self, labels, classes):
+    def __init__(self, labels, classes, start_from = 0, amount = None):
         self.indices = []
+        start = [start_from] * len(classes)
+        left = [amount] * len(classes)
+
         for i, label in enumerate(labels):
             if label in classes:
-                self.indices.append(i)
+                idx = classes.index(label)
 
+                if start[idx] == 0:
+                    if left[idx] is None:
+                        self.indices.append(i)
+                    elif left[idx] > 0:
+                        self.indices.append(i)
+                        left[idx] -= 1
+                else: 
+                    start[idx] -= 1
 
     def __iter__(self):
         #return (i for i in range(self.prefix))
