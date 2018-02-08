@@ -19,7 +19,7 @@ from models import FeedForward
 from utils import *
 
 # PATHS
-CHECKPOINT    = "./checkpoints/mnist"
+CHECKPOINT    = "./checkpoints/mnist-mtl"
 
 # BATCH
 BATCH_SIZE    = 256
@@ -35,7 +35,7 @@ LR_DROP       = 0.5
 EPOCHS_DROP   = 20
 
 # MISC
-EPOCHS        = 200
+EPOCHS        = 100
 CUDA          = True
 
 # Manual seed
@@ -47,7 +47,7 @@ if CUDA:
     torch.cuda.manual_seed_all(SEED)
 
 #CLASSES = [5,3,4,9,8,7,0,1,2,6]
-CLASSES = range(10)
+ALL_CLASSES = range(10)
 
 def main():
 
@@ -58,59 +58,74 @@ def main():
 
     trainloader, validloader, testloader = load_MNIST(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
 
-    print("==> Creating model")
-    model = FeedForward(num_classes=len(CLASSES))
+    CLASSES = []
+    AUROCs = []
 
-    if CUDA:
-        model = model.cuda()
-        model = nn.DataParallel(model)
-        cudnn.benchmark = True
+    for t, cls in enumerate(ALL_CLASSES):
 
-    print('    Total params: %.3fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
+        print('\nTask: [%d | %d]\n' % (t + 1, len(ALL_CLASSES)))
 
-    criterion = nn.BCELoss()
-    optimizer = optim.SGD(model.parameters(), 
-                    lr=LEARNING_RATE, 
-                    momentum=MOMENTUM, 
-                    weight_decay=WEIGHT_DECAY
-                )
+        CLASSES.append(cls)
 
-    print("==> Learning")
+        print("==> Creating model")
+        model = FeedForward(num_classes=len(CLASSES))
 
-    for epoch in range(EPOCHS):
+        if CUDA:
+            model = model.cuda()
+            model = nn.DataParallel(model)
+            cudnn.benchmark = True
 
-        adjust_learning_rate(optimizer, epoch + 1)
+        print('    Total params: %.3fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
 
-        print('\nEpoch: [%d | %d]' % (epoch + 1, EPOCHS))
+        criterion = nn.BCELoss()
+        optimizer = optim.SGD(model.parameters(), 
+                        lr=LEARNING_RATE, 
+                        momentum=MOMENTUM, 
+                        weight_decay=WEIGHT_DECAY
+                    )
 
-        train_loss, train_acc = train(trainloader, model, criterion, optimizer )
-        test_loss, test_acc = train(validloader, model, criterion, test = True )
+        print("==> Learning")
 
-        # save model
-        is_best = test_loss < best_loss
-        best_loss = min(test_loss, best_loss)
-        save_checkpoint({
-            'epoch': epoch + 1,
-            'state_dict': model.state_dict(),
-            'loss': test_loss,
-            'optimizer': optimizer.state_dict()
-            }, is_best)
+        best_loss = 1e10
+        learning_rate = LEARNING_RATE
 
-    print("==> Calculating AUROC")
+        for epoch in range(EPOCHS):
 
-    filepath_best = os.path.join(CHECKPOINT, "best.pt")
-    checkpoint = torch.load(filepath_best)
-    model.load_state_dict(checkpoint['state_dict'])
+            learning_rate = adjust_learning_rate(learning_rate, optimizer, epoch + 1)
 
-    if CUDA:
-        model = model.module
+            print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
-    train(testloader, model, criterion, test=True)
-    auroc = calc_avg_AUROC(model, testloader, CLASSES, CUDA)
+            train_loss, train_acc = train(trainloader, model, criterion, CLASSES, optimizer )
+            test_loss, test_acc = train(validloader, model, criterion, CLASSES, test = True )
 
-    print( 'AUROC: {}'.format(auroc) )
+            # save model
+            is_best = test_loss < best_loss
+            best_loss = min(test_loss, best_loss)
+            save_checkpoint({
+                'epoch': epoch + 1,
+                'state_dict': model.state_dict(),
+                'loss': test_loss,
+                'optimizer': optimizer.state_dict()
+                }, is_best)
 
-def train(batchloader, model, criterion, optimizer = None, test = False):
+        print("==> Calculating AUROC")
+
+        filepath_best = os.path.join(CHECKPOINT, "best.pt")
+        checkpoint = torch.load(filepath_best)
+        model.load_state_dict(checkpoint['state_dict'])
+
+        #train(testloader, model, criterion, CLASSES, test=True)
+        auroc = calc_avg_AUROC(model, testloader, CLASSES, CUDA)
+
+        print( 'AUROC: {}'.format(auroc) )
+
+        AUROCs.append(auroc)
+
+    print( '\nAverage Per-task Performance over number of tasks' )
+    for i, p in enumerate(AUROCs):
+        print("%d: %f" % (i+1,p))
+
+def train(batchloader, model, criterion, classes, optimizer = None, test = False):
     
     # switch to train or evaluate mode
     if test:
@@ -136,7 +151,7 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
         data_time.update(time.time() - end)
 
         # convert labels into one hot vectors
-        targets_onehot = one_hot(targets, CLASSES)
+        targets_onehot = one_hot(targets, classes)
 
         if CUDA:
             inputs = inputs.cuda()
