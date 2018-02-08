@@ -193,13 +193,33 @@ def loss3(model, outputs, targets):
 def loss4(model, outputs, targets):
     pass
 
-def bfs(model):
+def bfs(model, outputs):
     model = copy.deepcopy(model)
+    
+    # TODO: set all to ones? or outputs?
+    # prev_active = np.ones(outputs.size())
+    prev_active = outputs
+    
+    layers = reversed(list(model.classifier.parameters()))
+    
+    for layer in layers:
 
-    prev_active = []
-    for layer in reversed(list(model.parameters())):
-        for neuron in layer:
-            pass
+        x_size, y_size = layer.size()
+        for x in range(x_size):
+
+            # we skip the weight if connected neuron wasn't selected
+            if (prev_active[x] < 1e-2):
+                continue
+
+            for y in range(y_size):
+                weight = layer[x][y]
+                # check if weight is active
+                if (weight > 1e-2):
+                    # mark affected connected neuron as active
+                    active[y] = 1
+
+            # TODO: do something with active neurons
+        
         prev_active = active
 
 
