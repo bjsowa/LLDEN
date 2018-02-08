@@ -1,4 +1,6 @@
 import torch.nn as nn
+from torch.nn import functional as F
+
 
 class FeedForward(nn.Module):
 
@@ -10,16 +12,11 @@ class FeedForward(nn.Module):
             nn.ReLU(inplace = True),
             nn.Linear(312, 128),
             nn.ReLU(inplace = True),
-            nn.Linear(128, num_classes)
+            nn.Linear(128, num_classes),
+            nn.Sigmoid()
         )
-
-        self.softmax = nn.Softmax(dim = 1)
 
     def forward(self, x):
         x = x.view(-1, 28*28)
         x = self.classifier(x)
         return x
-
-    def probabilities(self, x):
-        logits = self(x)
-        return self.softmax(logits)

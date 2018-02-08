@@ -15,7 +15,7 @@ def load_MNIST(classes = range(10), batch_size = 256, num_workers = 4):
     transform_all = transforms.Compose([
         transforms.RandomRotation(180),
         transforms.ToTensor(),
-        GaussianNoise(0, 0.5)
+        GaussianNoise(0, 0.2)
     ])
 
     trainset = dataloader(root=DATA, train=True, download=True, transform=transform_all)

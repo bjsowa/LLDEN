@@ -46,10 +46,10 @@ torch.manual_seed(SEED)
 if CUDA:
     torch.cuda.manual_seed_all(SEED)
 
-best_acc = 0  # best test accuracy
+#CLASSES = [5,3,4,9,8,7,0,1,2,6]
+CLASSES = range(10)
 
 def main():
-    global best_acc
 
     if not os.path.isdir(CHECKPOINT):
         os.makedirs(CHECKPOINT)
@@ -58,33 +58,17 @@ def main():
 
     trainloader, validloader, testloader = load_MNIST(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
 
-    # l = [0] * 10
-    # for (inputs, targets) in testloader:
-    #     for target in targets:
-    #         l[target] += 1
-
-    # for i in range(10):
-    #     print(i, l[i])
-
-    # img = trainset[30][0].numpy()
-    # img = np.transpose(img, (1,2,0))
-    # img = img.reshape(28,28)
-
-    # imshow(img, cmap="gray")
-
-    # savefig("fig.png")
-
     print("==> Creating model")
-    model = FeedForward(num_classes=10)
+    model = FeedForward(num_classes=len(CLASSES))
 
     if CUDA:
         model = model.cuda()
-        model = torch.nn.DataParallel(model)
+        model = nn.DataParallel(model)
         cudnn.benchmark = True
 
-    print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
+    print('    Total params: %.3fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCELoss()
     optimizer = optim.SGD(model.parameters(), 
                     lr=LEARNING_RATE, 
                     momentum=MOMENTUM, 
@@ -103,12 +87,12 @@ def main():
         test_loss, test_acc = train(validloader, model, criterion, test = True )
 
         # save model
-        is_best = test_acc > best_acc
-        best_acc = max(test_acc, best_acc)
+        is_best = test_loss < best_loss
+        best_loss = min(test_loss, best_loss)
         save_checkpoint({
             'epoch': epoch + 1,
             'state_dict': model.state_dict(),
-            'acc': test_acc,
+            'loss': test_loss,
             'optimizer': optimizer.state_dict()
             }, is_best)
 
@@ -122,7 +106,7 @@ def main():
         model = model.module
 
     train(testloader, model, criterion, test=True)
-    auroc = calc_avg_AUROC(model, testloader, range(10), CUDA)
+    auroc = calc_avg_AUROC(model, testloader, CLASSES, CUDA)
 
     print( 'AUROC: {}'.format(auroc) )
 
@@ -151,22 +135,23 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
         # measure data loading time
         data_time.update(time.time() - end)
 
+        # convert labels into one hot vectors
+        targets_onehot = one_hot(targets, CLASSES)
+
         if CUDA:
             inputs = inputs.cuda()
             targets = targets.cuda()
+            targets_onehot = targets_onehot.cuda()
 
         inputs = Variable(inputs)
-        targets = Variable(targets)
+        targets_onehot = Variable(targets_onehot)
 
         #compute output
         outputs = model(inputs)
-        loss = criterion(outputs, targets)
+        loss = criterion(outputs, targets_onehot)
 
-        # measure accuracy and record loss
-        prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
+        # record loss
         losses.update(loss.data[0], inputs.size(0))
-        top1.update(prec1[0], inputs.size(0))
-        top5.update(prec5[0], inputs.size(0))
 
         if not test:
             # compute gradient and do SGD step
@@ -179,28 +164,24 @@ def train(batchloader, model, criterion, optimizer = None, test = False):
         end = time.time()
 
         # plot progress
-        bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
+        bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | Loss: {loss:.4f}'.format(
                     batch=batch_idx + 1,
                     size=len(batchloader),
                     data=data_time.avg,
                     bt=batch_time.avg,
                     total=bar.elapsed_td,
-                    eta=bar.eta_td,
-                    loss=losses.avg,
-                    top1=top1.avg,
-                    top5=top5.avg)
+                    loss=losses.avg)
         bar.next()
 
     bar.finish()
     return (losses.avg, top1.avg)
 
-def adjust_learning_rate(optimizer, epoch):
-    global LEARNING_RATE
-
+def adjust_learning_rate(learning_rate, optimizer, epoch):
     if epoch % EPOCHS_DROP == 0:
-        LEARNING_RATE *= LR_DROP
+        learning_rate *= LR_DROP
         for param_group in optimizer.param_groups:
-            param_group['lr'] = LEARNING_RATE
+            param_group['lr'] = learning_rate
+    return learning_rate
 
 def save_checkpoint(state, is_best):
     filepath = os.path.join(CHECKPOINT, "last.pt")
