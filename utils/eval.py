@@ -4,15 +4,7 @@ import torch
 from torch.autograd import Variable
 import numpy as np
 
-__all__ = ['one_hot', 'accuracy', 'calc_avg_AUROC', 'AUROC']
-
-def one_hot(targets, classes):
-    targets = targets.type(torch.LongTensor).view(-1)
-    targets_onehot = torch.zeros(targets.size()[0], len(classes))
-    for i, t in enumerate(targets):
-        if t in classes:
-            targets_onehot[i][classes.index(t)] = 1
-    return targets_onehot
+__all__ = ['accuracy', 'calc_avg_AUROC', 'AUROC']
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
@@ -29,7 +21,7 @@ def accuracy(output, target, topk=(1,)):
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
 
-def calc_avg_AUROC(model, batchloader, classes, use_cuda, num_classes = 10):
+def calc_avg_AUROC(model, batchloader, all_classes, classes, use_cuda, num_classes = 10):
     """Calculates average of the AUROC for selected classes in the dataset
     """
     sum_targets = torch.cuda.LongTensor() if use_cuda else torch.LongTensor()
@@ -48,8 +40,8 @@ def calc_avg_AUROC(model, batchloader, classes, use_cuda, num_classes = 10):
         sum_outputs = torch.cat((sum_outputs, outputs), 0)
 
     sum_area = 0
-    for i, cls in enumerate(classes):
-        scores = sum_outputs[:, i]
+    for cls in classes:
+        scores = sum_outputs[:, all_classes.index(cls)]
         sum_area += AUROC(scores.cpu().numpy(), (sum_targets == cls).cpu().numpy())
     
     return (sum_area / len(classes))

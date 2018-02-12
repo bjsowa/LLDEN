@@ -19,7 +19,7 @@ from models import FeedForward
 from utils import *
 
 # PATHS
-CHECKPOINT    = "./checkpoints/mnist-mtl"
+CHECKPOINT    = "./checkpoints/mnist"
 
 # BATCH
 BATCH_SIZE    = 256
@@ -58,31 +58,32 @@ def main():
 
     trainloader, validloader, testloader = load_MNIST(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
 
+    print("==> Creating model")
+    model = FeedForward(num_classes=len(ALL_CLASSES))
+
+    if CUDA:
+        model = model.cuda()
+        model = nn.DataParallel(model)
+        cudnn.benchmark = True
+
+    print('    Total params: %.3fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
+
+    criterion = nn.BCELoss()
+
     CLASSES = []
     AUROCs = []
 
     for t, cls in enumerate(ALL_CLASSES):
 
+        optimizer = optim.SGD(model.parameters(), 
+                lr=LEARNING_RATE, 
+                momentum=MOMENTUM, 
+                weight_decay=WEIGHT_DECAY
+            )
+
         print('\nTask: [%d | %d]\n' % (t + 1, len(ALL_CLASSES)))
 
         CLASSES.append(cls)
-
-        print("==> Creating model")
-        model = FeedForward(num_classes=len(CLASSES))
-
-        if CUDA:
-            model = model.cuda()
-            model = nn.DataParallel(model)
-            cudnn.benchmark = True
-
-        print('    Total params: %.3fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
-
-        criterion = nn.BCELoss()
-        optimizer = optim.SGD(model.parameters(), 
-                        lr=LEARNING_RATE, 
-                        momentum=MOMENTUM, 
-                        weight_decay=WEIGHT_DECAY
-                    )
 
         print("==> Learning")
 
@@ -99,8 +100,8 @@ def main():
 
             print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
-            train_loss = train(trainloader, model, criterion, CLASSES, CLASSES, optimizer, use_cuda = CUDA)
-            test_loss = train(validloader, model, criterion, CLASSES, CLASSES, test = True, use_cuda = CUDA)
+            train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer, use_cuda = CUDA)
+            test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, use_cuda = CUDA)
 
             # save model
             is_best = test_loss < best_loss
@@ -118,8 +119,7 @@ def main():
         checkpoint = torch.load(filepath_best)
         model.load_state_dict(checkpoint['state_dict'])
 
-        #train(testloader, model, criterion, CLASSES, test=True)
-        auroc = calc_avg_AUROC(model, testloader, CLASSES, CLASSES, CUDA)
+        auroc = calc_avg_AUROC(model, testloader, ALL_CLASSES, CLASSES, CUDA)
 
         print( 'AUROC: {}'.format(auroc) )
 
