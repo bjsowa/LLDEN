@@ -26,7 +26,7 @@ def one_hot(targets, classes):
             targets_onehot[i][classes.index(t)] = 1
     return targets_onehot
 
-def train(batchloader, model, criterion, all_classes, classes, optimizer = None, test = False, use_cuda = False):
+def train(batchloader, model, criterion, all_classes, classes, optimizer = None, penalty = None, test = False, use_cuda = False):
     
     # switch to train or evaluate mode
     if test:
@@ -67,6 +67,8 @@ def train(batchloader, model, criterion, all_classes, classes, optimizer = None,
         loss = 0
         for i, cls in enumerate(classes):
             loss = loss + criterion(outputs[:, all_classes.index(cls)], targets_onehot[:, i])
+        if penalty is not None:
+        	loss = loss + penalty(model)
 
         # record loss
         losses.update(loss.data[0], inputs.size(0))
