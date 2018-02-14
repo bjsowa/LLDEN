@@ -15,7 +15,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from progress.bar import Bar
 
-from models import AlexNet
+from models import LeNet
 from utils import *
 
 # PATHS
@@ -26,8 +26,8 @@ BATCH_SIZE    = 256
 NUM_WORKERS   = 4
 
 # SGD
-LEARNING_RATE = 0.001
-MOMENTUM      = 0.8
+LEARNING_RATE = 0.01
+MOMENTUM      = 0.9
 WEIGHT_DECAY  = 1e-4
 
 # Step Decay
@@ -46,7 +46,7 @@ torch.manual_seed(SEED)
 if CUDA:
     torch.cuda.manual_seed_all(SEED)
 
-ALL_CLASSES = range(100)
+ALL_CLASSES = range(10)
 
 def main():
 
@@ -60,15 +60,14 @@ def main():
     CLASSES = []
     AUROCs = []
 
-    # This looks scary, but all it does is iterate over ALL_CLASSES, 10 items at a time
-    for t, cls in enumerate(zip(*[iter(ALL_CLASSES)]*10)):
+    for t, cls in enumerate(ALL_CLASSES):
 
-        print('\nTask: [%d | %d]\n' % (t + 1, len(ALL_CLASSES)/10))
+        print('\nTask: [%d | %d]\n' % (t + 1, len(ALL_CLASSES)))
 
-        CLASSES += cls
+        CLASSES.append(cls)
 
         print("==> Creating model")
-        model = AlexNet(num_classes=len(CLASSES))
+        model = LeNet(num_classes=len(CLASSES))
 
         if CUDA:
             model = model.cuda()
@@ -118,7 +117,6 @@ def main():
         checkpoint = torch.load(filepath_best)
         model.load_state_dict(checkpoint['state_dict'])
 
-        #train(testloader, model, criterion, CLASSES, test=True)
         auroc = calc_avg_AUROC(model, testloader, CLASSES, CLASSES, CUDA)
 
         print( 'AUROC: {}'.format(auroc) )

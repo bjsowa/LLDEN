@@ -37,7 +37,7 @@ def load_MNIST(batch_size = 256, num_workers = 4):
 
 def load_CIFAR(batch_size = 256, num_workers = 4):
 
-    dataloader = datasets.CIFAR100
+    dataloader = datasets.CIFAR10
 
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
