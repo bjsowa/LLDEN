@@ -1,20 +1,13 @@
 from __future__ import print_function
 
 import os
-import time
-import shutil
 import random
 import copy
-
-import numpy as np
-from matplotlib.pyplot import imshow, savefig
 
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
-from torch.autograd import Variable
-from progress.bar import Bar
 
 from models import FeedForward
 from utils import *
@@ -47,7 +40,6 @@ torch.manual_seed(SEED)
 if CUDA:
     torch.cuda.manual_seed_all(SEED)
 
-#CLASSES = [5,3,4,9,8,7,0,1,2,6]
 ALL_CLASSES = range(10)
 
 def main():
@@ -67,7 +59,7 @@ def main():
         model = nn.DataParallel(model)
         cudnn.benchmark = True
 
-    print('    Total params: %.3fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
+    print('    Total params: %.2fK' % (sum(p.numel() for p in model.parameters()) / 1000) )
 
     criterion = nn.BCELoss()
     penalty = None
@@ -141,7 +133,7 @@ def main():
 
 
 class l2_penalty(object):
-    def __init__(self, model, coeff = 1e-2):
+    def __init__(self, model, coeff = 5e-3):
         self.old_model = model
         self.coeff = coeff
 

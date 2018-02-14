@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import random
+import copy
 
 import torch
 import torch.nn as nn
@@ -12,7 +13,7 @@ from models import LeNet
 from utils import *
 
 # PATHS
-CHECKPOINT    = "./checkpoints/cifar-mtl"
+CHECKPOINT    = "./checkpoints/cifar-l2"
 
 # BATCH
 BATCH_SIZE    = 256
@@ -50,31 +51,33 @@ def main():
 
     trainloader, testloader = load_CIFAR(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
 
+    print("==> Creating model")
+    model = LeNet(num_classes=len(ALL_CLASSES))
+
+    if CUDA:
+        model = model.cuda()
+        model = nn.DataParallel(model)
+        cudnn.benchmark = True
+
+    print('    Total params: %.2fK' % (sum(p.numel() for p in model.parameters()) / 1000) )
+
+    criterion = nn.BCELoss()
+    penalty = None
+
     CLASSES = []
     AUROCs = []
 
     for t, cls in enumerate(ALL_CLASSES):
 
+        optimizer = optim.SGD(model.parameters(), 
+                lr=LEARNING_RATE, 
+                momentum=MOMENTUM, 
+                weight_decay=WEIGHT_DECAY
+            )
+
         print('\nTask: [%d | %d]\n' % (t + 1, len(ALL_CLASSES)))
 
         CLASSES.append(cls)
-
-        print("==> Creating model")
-        model = LeNet(num_classes=len(CLASSES))
-
-        if CUDA:
-            model = model.cuda()
-            model = nn.DataParallel(model)
-            cudnn.benchmark = True
-
-        print('    Total params: %.2fK' % (sum(p.numel() for p in model.parameters()) / 1000) )
-
-        criterion = nn.BCELoss()
-        optimizer = optim.SGD(model.parameters(), 
-                        lr=LEARNING_RATE, 
-                        momentum=MOMENTUM, 
-                        weight_decay=WEIGHT_DECAY
-                    )
 
         print("==> Learning")
 
@@ -91,8 +94,8 @@ def main():
 
             print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
-            train_loss = train(trainloader, model, criterion, CLASSES, CLASSES, optimizer = optimizer, use_cuda = CUDA)
-            test_loss = train(testloader, model, criterion, CLASSES, CLASSES, test = True, use_cuda = CUDA)
+            train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
+            test_loss = train(testloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
 
             # save model
             is_best = test_loss < best_loss
@@ -110,15 +113,41 @@ def main():
         checkpoint = torch.load(filepath_best)
         model.load_state_dict(checkpoint['state_dict'])
 
-        auroc = calc_avg_AUROC(model, testloader, CLASSES, CLASSES, CUDA)
+        auroc = calc_avg_AUROC(model, testloader, ALL_CLASSES, CLASSES, CUDA)
 
         print( 'AUROC: {}'.format(auroc) )
 
         AUROCs.append(auroc)
 
+        # create a copy of current model and make the weights fixed
+        model_copy = copy.deepcopy(model)
+        for param in model_copy.parameters():
+            param.requires_grad = False
+
+        # create l2 norm penalty for the next task
+        penalty = l2_penalty(model_copy)
+
     print( '\nAverage Per-task Performance over number of tasks' )
     for i, p in enumerate(AUROCs):
         print("%d: %f" % (i+1,p))
+
+class l2_penalty(object):
+    def __init__(self, model, coeff = 5e-2):
+        self.old_model = model
+        self.coeff = coeff
+
+    def __call__(self, new_model):
+        penalty = 0
+        for ((name1, param1), (name2, param2)) in zip(self.old_model.named_parameters(), new_model.named_parameters()):
+            if name1 != name2 or param1.shape != param2.shape:
+                raise Exception("model parameters do not match!")
+
+            # get only weight parameters
+            if 'bias' not in name1:
+                diff = param1 - param2
+                penalty = penalty + diff.norm(2)
+
+        return self.coeff * penalty
 
 if __name__ == '__main__':
     main()

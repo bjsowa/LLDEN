@@ -1,19 +1,12 @@
 from __future__ import print_function
 
 import os
-import time
-import shutil
 import random
-
-import numpy as np
-from matplotlib.pyplot import imshow, savefig
 
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
-from torch.autograd import Variable
-from progress.bar import Bar
 
 from models import FeedForward
 from utils import *
@@ -46,7 +39,6 @@ torch.manual_seed(SEED)
 if CUDA:
     torch.cuda.manual_seed_all(SEED)
 
-#CLASSES = [5,3,4,9,8,7,0,1,2,6]
 ALL_CLASSES = range(10)
 
 def main():
@@ -75,7 +67,7 @@ def main():
             model = nn.DataParallel(model)
             cudnn.benchmark = True
 
-        print('    Total params: %.3fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
+        print('    Total params: %.2fK' % (sum(p.numel() for p in model.parameters()) / 1000) )
 
         criterion = nn.BCELoss()
         optimizer = optim.SGD(model.parameters(), 
@@ -99,7 +91,7 @@ def main():
 
             print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
-            train_loss = train(trainloader, model, criterion, CLASSES, CLASSES, optimizer, use_cuda = CUDA)
+            train_loss = train(trainloader, model, criterion, CLASSES, CLASSES, optimizer = optimizer, use_cuda = CUDA)
             test_loss = train(validloader, model, criterion, CLASSES, CLASSES, test = True, use_cuda = CUDA)
 
             # save model
