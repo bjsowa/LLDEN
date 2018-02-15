@@ -1,18 +1,13 @@
 from __future__ import print_function
 
 import os
-import time
-import shutil
 import random
-
-import numpy as np
+import copy
 
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
-from torch.autograd import Variable
-from progress.bar import Bar
 
 from models import FeedForward
 from utils import *
@@ -29,9 +24,16 @@ LEARNING_RATE = 0.01
 MOMENTUM      = 0.9
 WEIGHT_DECAY  = 0
 
+# Step Decay
+LR_DROP       = 0.5
+EPOCHS_DROP   = 20
+
 # MISC
-EPOCHS = 200
+EPOCHS = 50
 CUDA = True
+
+# L1 REGULARIZATION
+L1_COEFF = 1e-5
 
 # Manual seed
 SEED = 20
@@ -41,139 +43,158 @@ torch.manual_seed(SEED)
 if CUDA:
     torch.cuda.manual_seed_all(SEED)
 
-best_acc = 0  # best test accuracy
+ALL_CLASSES = range(10)
 
 def main():
-    global best_acc
+
+    if not os.path.isdir(CHECKPOINT):
+        os.makedirs(CHECKPOINT)
 
     print('==> Preparing dataset')
 
     trainloader, validloader, testloader = load_MNIST(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
 
     print("==> Creating model")
-    model = FeedForward(num_classes=10)
+    model = FeedForward(num_classes=len(ALL_CLASSES))
 
     if CUDA:
         model = model.cuda()
         model = nn.DataParallel(model)
         cudnn.benchmark = True
 
-    print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
+    print('    Total params: %.2fK' % (sum(p.numel() for p in model.parameters()) / 1000) )
 
-    layers = list(model.module.classifier)
-    criterion = MyLoss(1e-4, layers)
-    optimizer = optim.SGD(model.parameters(), 
+    criterion = nn.BCELoss()
+
+    CLASSES = []
+    AUROCs = []
+
+    # threshold = 1e-6
+    # suma = 0
+    # for p in model.parameters():
+    #     p = p.data.cpu().numpy()
+    #     suma += (p < threshold).sum()
+    # print(suma)
+
+    for t, cls in enumerate(ALL_CLASSES):
+
+        print('\nTask: [%d | %d]\n' % (t + 1, len(ALL_CLASSES)))
+
+        CLASSES.append(cls)
+
+        if t == 0:
+            print("==> Learning")
+
+            optimizer = optim.SGD(model.parameters(), 
+                    lr=LEARNING_RATE, 
+                    momentum=MOMENTUM, 
+                    weight_decay=WEIGHT_DECAY
+                )
+
+            penalty = l1_penalty(coeff = L1_COEFF)
+            best_loss = 1e10
+            learning_rate = LEARNING_RATE
+
+            # for name, param in model.named_parameters():
+            #     if 'bias' not in name:
+            #         param.register_hook(my_hook)
+
+            for epoch in range(EPOCHS):
+
+                # decay learning rate
+                if (epoch + 1) % EPOCHS_DROP == 0:
+                    learning_rate *= LR_DROP
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = learning_rate
+
+                print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
+
+                train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
+                test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
+
+                # save model
+                is_best = test_loss > best_loss
+                best_loss = min(test_loss, best_loss)
+                save_checkpoint({
+                    'epoch': epoch + 1,
+                    'state_dict': model.state_dict(),
+                    'loss': test_loss,
+                    'optimizer': optimizer.state_dict()
+                    }, CHECKPOINT, is_best)
+
+        else:
+            print("==> Selective Retraining")
+
+            # copy model 
+            old_model = copy.deepcopy(model)
+
+            # freeze all layers except the last one (last 2 parameters)
+            params = list(model.parameters())
+            for param in params[:-2]:
+                param.requires_grad = False
+
+            optimizer = optim.SGD(
+                filter(lambda p: p.requires_grad, model.parameters()),
                 lr=LEARNING_RATE, 
                 momentum=MOMENTUM, 
                 weight_decay=WEIGHT_DECAY
             )
 
-    print("==> Learning")
+            penalty = l1_penalty(coeff = L1_COEFF)
+            best_loss = 1e10
+            learning_rate = LEARNING_RATE
 
-    for epoch in range(EPOCHS):
+            for epoch in range(EPOCHS):
 
-        # adjust_learning_rate(optimizer, epoch + 1)
+                # decay learning rate
+                if (epoch + 1) % EPOCHS_DROP == 0:
+                    learning_rate *= LR_DROP
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = learning_rate
 
-        print('\nEpoch: [%d | %d]' % (epoch + 1, EPOCHS))
+                print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
 
-        train_loss, train_acc = train(trainloader, model, criterion, optimizer )
-        test_loss, test_acc = train(validloader, model, criterion, test = True )
+                train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
+                test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
 
-        # # save model
-        # is_best = test_acc > best_acc
-        # best_acc = max(test_acc, best_acc)
-        # save_checkpoint({
-        #     'epoch': epoch + 1,
-        #     'state_dict': model.state_dict(),
-        #     'acc': test_acc,
-        #     'optimizer': optimizer.state_dict()
-        #     }, is_best)
-
-
-
-class MyLoss(nn.Module):
-    def __init__(self, coeff, layers):
-        super(MyLoss, self).__init__()
-        self.coeff = coeff
-        self.layers = layers
-        self.loss = nn.CrossEntropyLoss()
-
-    def forward(self, x, y):
-        reg = 0
-        for layer in self.layers:
-            for p in layer.parameters():
-                reg += torch.norm(p,1)
-        return self.loss(x,y) + self.coeff * reg
+                # save model
+                is_best = test_loss > best_loss
+                best_loss = min(test_loss, best_loss)
+                save_checkpoint({
+                    'epoch': epoch + 1,
+                    'state_dict': model.state_dict(),
+                    'loss': test_loss,
+                    'optimizer': optimizer.state_dict()
+                    }, CHECKPOINT, is_best)
 
 
-def train(batchloader, model, criterion, optimizer = None, test = False):
-    
-    # switch to train or evaluate mode
-    if test:
-        model.eval()
-    else:
-        model.train()
+                # threshold = 1e-6
+                # params = list(model.parameters())
+                # p = params[-2].data.cpu().numpy()
+                # suma = (p < threshold).sum()
+                # print(suma)
 
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
-    losses = AverageMeter()
-    top1 = AverageMeter()
-    top5 = AverageMeter()
-    end = time.time()
 
-    if test:
-        bar = Bar('Testing', max=len(batchloader))
-    else:
-        bar = Bar('Training', max=len(batchloader))
 
-    for batch_idx, (inputs, targets) in enumerate(batchloader):
+        print("==> Calculating AUROC")
 
-        # measure data loading time
-        data_time.update(time.time() - end)
+        filepath_best = os.path.join(CHECKPOINT, "best.pt")
+        checkpoint = torch.load(filepath_best)
+        model.load_state_dict(checkpoint['state_dict'])
 
-        if CUDA:
-            inputs = inputs.cuda()
-            targets = targets.cuda()
+        auroc = calc_avg_AUROC(model, testloader, ALL_CLASSES, CLASSES, CUDA)
 
-        inputs = Variable(inputs)
-        targets = Variable(targets)
+        print( 'AUROC: {}'.format(auroc) )
 
-        #compute output
-        outputs = model(inputs)
-        loss = criterion(outputs, targets)
+        AUROCs.append(auroc)
 
-        # measure accuracy and record loss
-        prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
-        losses.update(loss.data[0], inputs.size(0))
-        top1.update(prec1[0], inputs.size(0))
-        top5.update(prec5[0], inputs.size(0))
+    print( '\nAverage Per-task Performance over number of tasks' )
+    for i, p in enumerate(AUROCs):
+        print("%d: %f" % (i+1,p))
 
-        if not test:
-            # compute gradient and do SGD step
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
-
-        # plot progress
-        bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
-                    batch=batch_idx + 1,
-                    size=len(batchloader),
-                    data=data_time.avg,
-                    bt=batch_time.avg,
-                    total=bar.elapsed_td,
-                    eta=bar.eta_td,
-                    loss=losses.avg,
-                    top1=top1.avg,
-                    top5=top5.avg)
-        bar.next()
-
-    bar.finish()
-    return (losses.avg, top1.avg)
-
+def my_hook(grad):
+    print("")
+    print(grad)
 
 def loss2(model, outputs, targets):
     loss = nn.CrossEntropyLoss()

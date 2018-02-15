@@ -9,7 +9,7 @@ from progress.bar import Bar
 
 from .misc import AverageMeter
 
-__all__ = ['train', 'save_checkpoint', 'l2_penalty']
+__all__ = ['train', 'save_checkpoint', 'l1_penalty', 'l2_penalty']
 
 # Manual seed
 SEED = 20
@@ -119,4 +119,15 @@ class l2_penalty(object):
                 diff = param1 - param2
                 penalty = penalty + diff.norm(2)
 
+        return self.coeff * penalty
+
+class l1_penalty(object):
+    def __init__(self, coeff = 5e-2):
+        self.coeff = coeff
+
+    def __call__(self, model):
+        penalty = 0
+        for name, param in model.named_parameters():
+            if param.requires_grad and 'bias' not in name:
+                penalty = penalty + param.norm(1)
         return self.coeff * penalty
