@@ -4,6 +4,8 @@ import os
 import random
 import copy
 
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
@@ -29,11 +31,14 @@ LR_DROP       = 0.5
 EPOCHS_DROP   = 20
 
 # MISC
-EPOCHS = 50
+EPOCHS = 200
 CUDA = True
 
 # L1 REGULARIZATION
-L1_COEFF = 1e-5
+L1_COEFF = 1e-4
+
+# weight below this value will be considered as zero
+ZERO_THRESHOLD = 1e-2
 
 # Manual seed
 SEED = 20
@@ -95,10 +100,6 @@ def main():
             best_loss = 1e10
             learning_rate = LEARNING_RATE
 
-            # for name, param in model.named_parameters():
-            #     if 'bias' not in name:
-            #         param.register_hook(my_hook)
-
             for epoch in range(EPOCHS):
 
                 # decay learning rate
@@ -113,20 +114,17 @@ def main():
                 test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
 
                 # save model
-                is_best = test_loss > best_loss
+                is_best = test_loss < best_loss
                 best_loss = min(test_loss, best_loss)
-                save_checkpoint({
-                    'epoch': epoch + 1,
-                    'state_dict': model.state_dict(),
-                    'loss': test_loss,
-                    'optimizer': optimizer.state_dict()
-                    }, CHECKPOINT, is_best)
+                save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
 
         else:
+            # copy model 
+            model_copy = copy.deepcopy(model)
+
             print("==> Selective Retraining")
 
-            # copy model 
-            old_model = copy.deepcopy(model)
+            ## Solve Eq.3
 
             # freeze all layers except the last one (last 2 parameters)
             params = list(model.parameters())
@@ -158,21 +156,55 @@ def main():
                 test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
 
                 # save model
-                is_best = test_loss > best_loss
+                is_best = test_loss < best_loss
                 best_loss = min(test_loss, best_loss)
-                save_checkpoint({
-                    'epoch': epoch + 1,
-                    'state_dict': model.state_dict(),
-                    'loss': test_loss,
-                    'optimizer': optimizer.state_dict()
-                    }, CHECKPOINT, is_best)
+                save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
 
 
-                # threshold = 1e-6
-                # params = list(model.parameters())
-                # p = params[-2].data.cpu().numpy()
-                # suma = (p < threshold).sum()
-                # print(suma)
+            for param in model.parameters():
+                param.requires_grad = True
+
+            #new_model = copy.deepcopy(model_copy)
+
+            print("==> Selecting Neurons")
+            hooks = select_neurons(model, model_copy, t)
+
+            model = model_copy
+            #new_model = None
+
+            print("==> Training Selected Neurons")
+
+            optimizer = optim.SGD(
+                model.parameters(),
+                lr=LEARNING_RATE, 
+                momentum=MOMENTUM, 
+                weight_decay=0
+            )
+
+            best_loss = 1e10
+            learning_rate = LEARNING_RATE
+
+            for epoch in range(EPOCHS):
+
+                # decay learning rate
+                if (epoch + 1) % EPOCHS_DROP == 0:
+                    learning_rate *= LR_DROP
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = learning_rate
+
+                print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
+
+                train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, use_cuda = CUDA)
+                test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, use_cuda = CUDA)
+
+                # save model
+                is_best = test_loss < best_loss
+                best_loss = min(test_loss, best_loss)
+                save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
+
+            # remove hooks
+            for hook in hooks:
+                hook.remove()
 
 
 
@@ -192,107 +224,74 @@ def main():
     for i, p in enumerate(AUROCs):
         print("%d: %f" % (i+1,p))
 
-def my_hook(grad):
-    print("")
-    print(grad)
 
-def loss2(model, outputs, targets):
-    loss = nn.CrossEntropyLoss()
-    coeff = 1e-4
-    reg = 0
-    for layer in model.parameters():
-        reg += torch.norm(layer, 1)
-    return loss(outputs, targets) + coeff * reg
+class my_hook(object):
 
-def loss3(model, outputs, targets):
-    loss = nn.CrossEntropyLoss()
-    coeff = 1e-4
-    layers = list(model.parameters())
-    reg = torch.norm(layers[-1], 1)
-    return loss(outputs, targets) + coeff * reg
+    def __init__(self, mask1, mask2):
+        self.mask1 = torch.Tensor(mask1).long().nonzero().view(-1).numpy()
+        self.mask2 = torch.Tensor(mask2).long().nonzero().view(-1).numpy()
 
-def loss4(model, outputs, targets):
-    pass
+    def __call__(self, grad):
 
-def bfs(model, outputs):
-    model = copy.deepcopy(model)
+        grad_clone = grad.clone()
+        if self.mask1.size:
+            grad_clone[self.mask1, :] = 0
+        if self.mask2.size:
+            grad_clone[:, self.mask2] = 0
+        return grad_clone
+
+
+def select_neurons(model, new_model, task):
     
-    # TODO: set all to ones? or outputs?
-    # prev_active = np.ones(outputs.size())
-    prev_active = outputs
+    prev_active = [True]*len(ALL_CLASSES)
+    prev_active[task] = False
     
-    layers = reversed(list(model.classifier.parameters()))
+    layers = []
+    for name, param in model.named_parameters():
+        if 'bias' not in name:
+            layers.append(param)
+    layers = reversed(layers)
+
+    new_layers = []
+    for name, param in new_model.named_parameters():
+        if 'bias' not in name:
+            new_layers.append(param)
+    new_layers = reversed(new_layers)
+
+    hooks = []
+    selected = []
     
-    for layer in layers:
+    for layer, new_layer in zip(layers, new_layers):
 
         x_size, y_size = layer.size()
+
+        active = [True]*y_size
+        data = layer.data
+
         for x in range(x_size):
 
             # we skip the weight if connected neuron wasn't selected
-            if (prev_active[x] < 1e-2):
+            if prev_active[x]:
                 continue
 
             for y in range(y_size):
-                weight = layer[x][y]
+                weight = data[x,y]
                 # check if weight is active
-                if (weight > 1e-2):
-                    # mark affected connected neuron as active
-                    active[y] = 1
+                if (weight > ZERO_THRESHOLD):
+                    # mark connected neuron as active
+                    active[y] = False
 
-            # TODO: do something with active neurons
-        
+        h = new_layer.register_hook(my_hook(prev_active, active))
+
+        hooks.append(h)
         prev_active = active
 
+        selected.append( (y_size - sum(active), y_size) )
 
-def incremental_learning(model, datasets, tau, sigma):
+    for nr, (sel, neurons) in enumerate(reversed(selected)):
+        print( "layer %d: %d / %d" % (nr+1, sel, neurons) )
 
-    for t, dataset in enumerate(datasets):
-        if t == 0:
-            criterion = (lambda outputs, targets: loss1(model, output, targets))
-            train(dataset, model, loss1)
-        else:
-            loss, model = selective_training(prev_model)
-            if loss > tau:
-                model = dynamic_network_expansion(model)
-
-def selective_training(model):
-    """Finds neurons that are relevant to the new
-       task and retrains the network parameters
-       associated with them.
-    """
-    # freeze all layers except the last one
-    layers = list(model.parameters())
-    for layer in layers[:-1]:
-        layer.requires_grad = False
-
-    # train the network and receive sparse
-    # connections on the last layer
-    train(dataset, model, loss3)
-
-    # use breadth-first search on the network
-    # to receive set of affected neurons
-    subnetwork = bfs(model)
-
-    # train only the weights of the acquired
-    # subnetwork
-    train(dataset, subnetwork, loss4)
-
-def dynamic_network_expansion(weights, tau):
-    """Expands the network capacity in a top-down
-       manner, while eliminating any unnecessary
-       neurons using group-sparsity regularization.
-    """
-    #TODO: implementation
-    pass
-
-def network_split_duplication(weights, sigma):
-    """Calculates the drift for each unit to
-       identify units that have drifted too much
-       from their original values during training
-       and duplicates them.
-    """
-    #TODO: implementation
-    pass
+    return hooks
 
 
 if __name__ == '__main__':
