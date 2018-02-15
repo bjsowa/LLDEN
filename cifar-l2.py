@@ -32,6 +32,9 @@ EPOCHS_DROP   = 20
 EPOCHS        = 100
 CUDA          = True
 
+# L2 REGULARIZATION
+L2_COEFF = 5e-2
+
 # Manual seed
 SEED = 20
 
@@ -125,29 +128,11 @@ def main():
             param.requires_grad = False
 
         # create l2 norm penalty for the next task
-        penalty = l2_penalty(model_copy)
+        penalty = l2_penalty(model_copy, coeff = L2_COEFF)
 
     print( '\nAverage Per-task Performance over number of tasks' )
     for i, p in enumerate(AUROCs):
         print("%d: %f" % (i+1,p))
-
-class l2_penalty(object):
-    def __init__(self, model, coeff = 5e-2):
-        self.old_model = model
-        self.coeff = coeff
-
-    def __call__(self, new_model):
-        penalty = 0
-        for ((name1, param1), (name2, param2)) in zip(self.old_model.named_parameters(), new_model.named_parameters()):
-            if name1 != name2 or param1.shape != param2.shape:
-                raise Exception("model parameters do not match!")
-
-            # get only weight parameters
-            if 'bias' not in name1:
-                diff = param1 - param2
-                penalty = penalty + diff.norm(2)
-
-        return self.coeff * penalty
 
 if __name__ == '__main__':
     main()
