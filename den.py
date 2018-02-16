@@ -31,14 +31,14 @@ LR_DROP       = 0.5
 EPOCHS_DROP   = 20
 
 # MISC
-EPOCHS = 200
+MAX_EPOCHS = 200
 CUDA = True
 
 # L1 REGULARIZATION
-L1_COEFF = 1e-4
+L1_COEFF = 1e-5
 
 # weight below this value will be considered as zero
-ZERO_THRESHOLD = 1e-2
+ZERO_THRESHOLD = 1e-4
 
 # Manual seed
 SEED = 20
@@ -67,19 +67,20 @@ def main():
         model = nn.DataParallel(model)
         cudnn.benchmark = True
 
+    # initialize parameters
+
+    for name, param in model.named_parameters():
+        if 'bias' in name:
+            param.data.zero_()
+        elif 'weight' in name:
+            param.data.normal_(0,0.005)
+
     print('    Total params: %.2fK' % (sum(p.numel() for p in model.parameters()) / 1000) )
 
     criterion = nn.BCELoss()
 
     CLASSES = []
     AUROCs = []
-
-    # threshold = 1e-6
-    # suma = 0
-    # for p in model.parameters():
-    #     p = p.data.cpu().numpy()
-    #     suma += (p < threshold).sum()
-    # print(suma)
 
     for t, cls in enumerate(ALL_CLASSES):
 
@@ -99,8 +100,9 @@ def main():
             penalty = l1_penalty(coeff = L1_COEFF)
             best_loss = 1e10
             learning_rate = LEARNING_RATE
+            # epochs = 10
 
-            for epoch in range(EPOCHS):
+            for epoch in range(MAX_EPOCHS):
 
                 # decay learning rate
                 if (epoch + 1) % EPOCHS_DROP == 0:
@@ -108,7 +110,7 @@ def main():
                     for param_group in optimizer.param_groups:
                         param_group['lr'] = learning_rate
 
-                print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
+                print('Epoch: [%d | %d]' % (epoch + 1, MAX_EPOCHS))
 
                 train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
                 test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
@@ -118,9 +120,24 @@ def main():
                 best_loss = min(test_loss, best_loss)
                 save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
 
+                # if is_best:
+                #     epochs = min(MAX_EPOCHS, epoch + 11)
+
+                # if epoch +1 == epochs:
+                #     break
+
+                suma = 0
+                for p in model.parameters():
+                    p = p.data.cpu().numpy()
+                    suma += (abs(p) < ZERO_THRESHOLD).sum()
+                print(suma)
+
         else:
             # copy model 
             model_copy = copy.deepcopy(model)
+
+            print("==> Splitting Neurons")
+            split_neurons(model_copy, model)
 
             print("==> Selective Retraining")
 
@@ -142,7 +159,7 @@ def main():
             best_loss = 1e10
             learning_rate = LEARNING_RATE
 
-            for epoch in range(EPOCHS):
+            for epoch in range(MAX_EPOCHS):
 
                 # decay learning rate
                 if (epoch + 1) % EPOCHS_DROP == 0:
@@ -150,27 +167,17 @@ def main():
                     for param_group in optimizer.param_groups:
                         param_group['lr'] = learning_rate
 
-                print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
+                print('Epoch: [%d | %d]' % (epoch + 1, MAX_EPOCHS))
 
-                train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
-                test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
-
-                # save model
-                is_best = test_loss < best_loss
-                best_loss = min(test_loss, best_loss)
-                save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
+                train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
+                train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
 
 
             for param in model.parameters():
                 param.requires_grad = True
 
-            #new_model = copy.deepcopy(model_copy)
-
             print("==> Selecting Neurons")
-            hooks = select_neurons(model, model_copy, t)
-
-            model = model_copy
-            #new_model = None
+            hooks = select_neurons(model, t)
 
             print("==> Training Selected Neurons")
 
@@ -178,13 +185,13 @@ def main():
                 model.parameters(),
                 lr=LEARNING_RATE, 
                 momentum=MOMENTUM, 
-                weight_decay=0
+                weight_decay=1e-4
             )
 
             best_loss = 1e10
             learning_rate = LEARNING_RATE
 
-            for epoch in range(EPOCHS):
+            for epoch in range(MAX_EPOCHS):
 
                 # decay learning rate
                 if (epoch + 1) % EPOCHS_DROP == 0:
@@ -192,7 +199,7 @@ def main():
                     for param_group in optimizer.param_groups:
                         param_group['lr'] = learning_rate
 
-                print('Epoch: [%d | %d]' % (epoch + 1, EPOCHS))
+                print('Epoch: [%d | %d]' % (epoch + 1, MAX_EPOCHS))
 
                 train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, use_cuda = CUDA)
                 test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, use_cuda = CUDA)
@@ -205,6 +212,10 @@ def main():
             # remove hooks
             for hook in hooks:
                 hook.remove()
+
+
+            print("==> Splitting Neurons")
+            split_neurons(model_copy, model)
 
 
 
@@ -241,7 +252,7 @@ class my_hook(object):
         return grad_clone
 
 
-def select_neurons(model, new_model, task):
+def select_neurons(model, task):
     
     prev_active = [True]*len(ALL_CLASSES)
     prev_active[task] = False
@@ -252,16 +263,10 @@ def select_neurons(model, new_model, task):
             layers.append(param)
     layers = reversed(layers)
 
-    new_layers = []
-    for name, param in new_model.named_parameters():
-        if 'bias' not in name:
-            new_layers.append(param)
-    new_layers = reversed(new_layers)
-
     hooks = []
     selected = []
     
-    for layer, new_layer in zip(layers, new_layers):
+    for layer in layers:
 
         x_size, y_size = layer.size()
 
@@ -281,7 +286,7 @@ def select_neurons(model, new_model, task):
                     # mark connected neuron as active
                     active[y] = False
 
-        h = new_layer.register_hook(my_hook(prev_active, active))
+        h = layer.register_hook(my_hook(prev_active, active))
 
         hooks.append(h)
         prev_active = active
@@ -293,6 +298,30 @@ def select_neurons(model, new_model, task):
 
     return hooks
 
+
+def split_neurons(old_model, new_model):
+
+    old_layers = []
+    for name, param in old_model.named_parameters():
+        if 'bias' not in name:
+            old_layers.append(param)
+
+    new_layers = []
+    for name, param in new_model.named_parameters():
+        if 'bias' not in name:
+            new_layers.append(param)
+
+    suma = 0
+    for old_layer, new_layer in zip(old_layers, new_layers):
+
+        for data1, data2 in zip(old_layer.data, new_layer.data):
+            diff = data1 - data2
+            drift = diff.norm(2)
+
+            if( drift > 0.02 ):
+                suma += 1
+
+    print( suma )
 
 if __name__ == '__main__':
     main()
