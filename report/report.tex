@@ -18,7 +18,7 @@
     \setcounter{secnumdepth}{0}
     % \pagenumbering{gobble}
     
-    % \usepackage[top=0.1in, bottom=0.7in, left=1.35in, right=1.35in]{geometry}
+    \usepackage[top=1in, bottom=1in, left=1.35in, right=1.35in]{geometry}
     
     \title{Lifelong Learning With Dynamically Expandable Networks -- Reproducibility Report }
     \author{Błażej Sowa, Łukasz Siudek}
@@ -170,22 +170,29 @@
     positive rate at various thresholds. The larger the computed area, the better our binary classification works. 
     \\
     \\
+    \subsubsection{Original graph}
     \includegraphics[height=6cm]{paper-cifar-10.png}
     \includegraphics[height=6cm]{paper-mnist-var.png}
 
+    \subsubsection{Our graph}
     \includegraphics[height=5cm]{fig1-s.png}
     \includegraphics[height=5cm]{fig2-v2.png}
 
     \subsection{Issues}
 
-    Here are some issues we encountered:
+    Unfortunately, we could not finish our implementation of DEN on course time. Due to various implementation
+    problems we managed to write only the Selective Training algorithm. Solutions that we achieved are
+    from that model.
+    \\
+    \\
+    Other issues we encountered:
 
     \begin{itemize}
         \item During the $l1$-regularization we noticed that weights do not exactly equal zero, but
         oscillate around it. The solution was to set a certain threshold, that when the value is less than
         that threshold, then we set the value to zero.
         \item Implementation using PyTorch turned out to be problematic when we had to train only
-        some subset of neurons. The solution was to set \textit{hooks} that set neurons to zero
+        some subset of neurons. The solution was to set \textit{hooks} that set certain gradients to zero
         during each backpropagation.
         \item A lot of model parameters were missing in the DEN paper. We found that the best score is
         achieved when $l1$-regularization parameter equals $10^{-5}$. When that parameter was too small,

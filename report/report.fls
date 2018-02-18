@@ -183,6 +183,8 @@ INPUT /usr/share/texmf-dist/tex/latex/hyperref/hpdftex.def
 INPUT /usr/share/texmf-dist/tex/latex/hyperref/hpdftex.def
 INPUT /usr/share/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty
 INPUT /usr/share/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty
+INPUT /usr/share/texmf-dist/tex/latex/geometry/geometry.sty
+INPUT /usr/share/texmf-dist/tex/latex/geometry/geometry.sty
 INPUT report.aux
 INPUT report.aux
 OUTPUT report.aux
@@ -225,7 +227,6 @@ INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmr17.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
-INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmr8.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmr6.tfm
@@ -244,6 +245,7 @@ INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam7.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
+INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
 INPUT /usr/share/texmf-dist/tex/latex/base/omscmr.fd
 INPUT /usr/share/texmf-dist/tex/latex/base/omscmr.fd
 INPUT imgs/paper-cifar-10.png

@@ -1,6 +1,6 @@
 # Fdb version 3
-["pdflatex"] 1518986976 "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" "report.pdf" "report" 1518986976
-  "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" 1518986975 10546 1564647f03500153b1bb70cb952845d9 ""
+["pdflatex"] 1518993119 "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" "report.pdf" "report" 1518993120
+  "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" 1518993118 10856 4dbfe8179aa94ef062234f84e1e0eb9c ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1492575644 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1492575651 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1492575651 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -112,6 +112,7 @@
   "/usr/share/texmf-dist/tex/latex/base/t1enc.dfu" 1492575656 11255 9d97362866549d3d3c994b5f28d1b9b5 ""
   "/usr/share/texmf-dist/tex/latex/base/utf8.def" 1492575656 7784 325a2a09984cb5c4ff230f9867145ad3 ""
   "/usr/share/texmf-dist/tex/latex/blindtext/blindtext.sty" 1492575761 47295 de48b7f8ebf4b54709a2f6b2c7106dd5 ""
+  "/usr/share/texmf-dist/tex/latex/geometry/geometry.sty" 1492575657 40502 e003406220954b0716679d7928aedd8a ""
   "/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg" 1492575657 1213 620bba36b25224fa9b7e1ccb4ecb76fd ""
   "/usr/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg" 1492575657 1224 978390e9c2234eab29404bc21b268d1e ""
   "/usr/share/texmf-dist/tex/latex/graphics-def/pdftex.def" 1492575657 58250 3792a9d2d1d664ee8c742498e295b051 ""
@@ -156,11 +157,11 @@
   "imgs/fig2-v2.png" 1518968892 50380 a13a46d716e522ad36f6f9ec195f0111 ""
   "imgs/paper-cifar-10.png" 1518957517 53855 26a4881c69ae159a52dd65c9ff605cfa ""
   "imgs/paper-mnist-var.png" 1518957483 57737 6b7ac84b9a0153b6b9a9770f1de7227a ""
-  "report.aux" 1518986976 1917 be6cae28aecb27cdb0ba0daf664a5d12 ""
-  "report.out" 1518986976 891 3081e1f502e4aa784c1355e16f3b84df ""
-  "report.tex" 1518986975 10546 1564647f03500153b1bb70cb952845d9 ""
+  "report.aux" 1518993120 2072 102f1f42c6b1c47320788755071b36ea ""
+  "report.out" 1518993120 1012 b210df0671fe37f06ee7bc57c91b330f ""
+  "report.tex" 1518993118 10856 4dbfe8179aa94ef062234f84e1e0eb9c ""
   (generated)
-  "report.out"
-  "report.aux"
-  "report.pdf"
   "report.log"
+  "report.out"
+  "report.pdf"
+  "report.aux"

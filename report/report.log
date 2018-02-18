@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  18 FEB 2018 21:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  18 FEB 2018 23:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -895,6 +895,21 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 82.
 )
 \Hy@SectionHShift=\skip49
+)
+(/usr/share/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2010/09/12 v5.6 Page Geometry
+\Gm@cnth=\count156
+\Gm@cntv=\count157
+\c@Gm@tempcnt=\count158
+\Gm@bindingoffset=\dimen175
+\Gm@wd@mp=\dimen176
+\Gm@odd@mp=\dimen177
+\Gm@even@mp=\dimen178
+\Gm@layoutwidth=\dimen179
+\Gm@layoutheight=\dimen180
+\Gm@layouthoffset=\dimen181
+\Gm@layoutvoffset=\dimen182
+\Gm@dimlist=\toks44
 ) (./report.aux
 
 LaTeX Warning: Label `lenet' multiply defined.
@@ -918,17 +933,17 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 27.
 LaTeX Font Info:    ... okay on input line 27.
  (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count156
-\scratchdimen=\dimen175
+\scratchcounter=\count159
+\scratchdimen=\dimen183
 \scratchbox=\box39
-\nofMPsegments=\count157
-\nofMParguments=\count158
-\everyMPshowfont=\toks44
-\MPscratchCnt=\count159
-\MPscratchDim=\dimen176
-\MPnumerator=\count160
-\makeMPintoPDFobject=\count161
-\everyMPtoPDFconversion=\toks45
+\nofMPsegments=\count160
+\nofMParguments=\count161
+\everyMPshowfont=\toks45
+\MPscratchCnt=\count162
+\MPscratchDim=\dimen184
+\MPnumerator=\count163
+\makeMPintoPDFobject=\count164
+\everyMPtoPDFconversion=\toks46
 ) (/usr/share/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -956,7 +971,7 @@ Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (/usr/share/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count162
+\c@section@level=\count165
 )
 LaTeX Info: Redefining \ref on input line 27.
 LaTeX Info: Redefining \pageref on input line 27.
@@ -965,23 +980,58 @@ LaTeX Info: Redefining \nameref on input line 27.
 \@outlinefile=\write4
 \openout4 = `report.out'.
 
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: <default>
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(97.56493pt, 419.16515pt, 97.56493pt)
+* v-part:(T,H,B)=(72.26999pt, 650.43001pt, 72.26999pt)
+* \paperwidth=614.295pt
+* \paperheight=794.96999pt
+* \textwidth=419.16515pt
+* \textheight=650.43001pt
+* \oddsidemargin=25.29494pt
+* \evensidemargin=25.29494pt
+* \topmargin=-37.0pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=44.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
 LaTeX Font Info:    Try loading font information for U+msa on input line 29.
- (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
+(/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
 LaTeX Font Info:    Try loading font information for U+msb on input line 29.
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1
-
-
-Non-PDF special ignored!{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+)
 Underfull \hbox (badness 10000) in paragraph at lines 71--77
 
  []
 
+[1
 
+
+Non-PDF special ignored!{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 Underfull \hbox (badness 10000) in paragraph at lines 80--87
 
  []
@@ -991,17 +1041,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 94--99
 
  []
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 114--125
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 114--125
+
+ []
+
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 114--125
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 114--125
-
- []
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 142--150
 
  []
@@ -1011,84 +1061,82 @@ Underfull \hbox (badness 10000) in paragraph at lines 142--150
 
  []
 
-[3]
 LaTeX Font Info:    Try loading font information for OMS+cmr on input line 151.
 
- (/usr/share/texmf-dist/tex/latex/base/omscmr.fd
+(/usr/share/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 151.
 
-<imgs/paper-cifar-10.png, id=98, 486.81876pt x 461.725pt>
+Underfull \hbox (badness 10000) in paragraph at lines 168--173
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 168--173
+
+ []
+
+<imgs/paper-cifar-10.png, id=102, 486.81876pt x 461.725pt>
 File: imgs/paper-cifar-10.png Graphic file (type png)
 
 <use imgs/paper-cifar-10.png>
-Package pdftex.def Info: imgs/paper-cifar-10.png used on input line 173.
+Package pdftex.def Info: imgs/paper-cifar-10.png used on input line 174.
 (pdftex.def)             Requested size: 179.99384pt x 170.71652pt.
 
-<imgs/paper-mnist-var.png, id=99, 529.98pt x 464.73625pt>
+<imgs/paper-mnist-var.png, id=103, 529.98pt x 464.73625pt>
 File: imgs/paper-mnist-var.png Graphic file (type png)
 
 <use imgs/paper-mnist-var.png>
-Package pdftex.def Info: imgs/paper-mnist-var.png used on input line 174.
+Package pdftex.def Info: imgs/paper-mnist-var.png used on input line 175.
 (pdftex.def)             Requested size: 194.6824pt x 170.71652pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 168--175
-
- []
-
-<imgs/fig1-s.png, id=100, 622.325pt x 461.725pt> [4]
+ [3]
+<imgs/fig1-s.png, id=108, 622.325pt x 461.725pt>
 File: imgs/fig1-s.png Graphic file (type png)
  <use imgs/fig1-s.png>
-Package pdftex.def Info: imgs/fig1-s.png used on input line 176.
+Package pdftex.def Info: imgs/fig1-s.png used on input line 178.
 (pdftex.def)             Requested size: 191.74126pt x 142.26378pt.
 
-<imgs/fig2-v2.png, id=106, 642.4pt x 481.8pt>
+<imgs/fig2-v2.png, id=110, 642.4pt x 481.8pt>
 File: imgs/fig2-v2.png Graphic file (type png)
  <use imgs/fig2-v2.png>
-Package pdftex.def Info: imgs/fig2-v2.png used on input line 177.
+Package pdftex.def Info: imgs/fig2-v2.png used on input line 179.
 (pdftex.def)             Requested size: 189.6828pt x 142.26378pt.
 
-Overfull \hbox (11.65996pt too wide) in paragraph at lines 176--178
-[][] [] 
+Underfull \hbox (badness 10000) in paragraph at lines 183--189
+
  []
 
-[5 <./imgs/paper-cifar-10.png> <./imgs/paper-mnist-var.png> <./imgs/fig1-s.png>
- <./imgs/fig2-v2.png>]
-Underfull \hbox (badness 1163) in paragraph at lines 212--215
-[] []\OT1/cmr/m/n/12 Y. Le-cun, L. Bot-tou, Y. Ben-gio, and P. Haffner, \OT1/cm
-r/m/it/12 Gradient-based
- []
-
-[6pdfTeX warning (ext4): destination with the same identifier (name{cite.lenet}
-) has been already used, duplicate ignored
+[4 <./imgs/paper-cifar-10.png> <./imgs/paper-mnist-var.png> <./imgs/fig1-s.png>
+ <./imgs/fig2-v2.png>] [5pdfTeX warning (ext4): destination with the same ident
+ifier (name{cite.lenet}) has been already used, duplicate ignored
 
 \@EveryShipout@Output ...@Org@Shipout \box \@cclv 
                                                   
-l.228     \end{document}
+l.235     \end{document}
                         ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 228.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 228.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 235.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 235.
  (./report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 228.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 228.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 235.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 235.
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 3081E1F502E4AA784C1355E16F3B84DF;891.
+(rerunfilecheck)             Checksum: B210DF0671FE37F06EE7BC57C91B330F;1012.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 228.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 235.
  ) 
 Here is how much of TeX's memory you used:
- 16991 strings out of 493013
- 311869 string characters out of 6139317
- 380158 words of memory out of 5000000
- 20181 multiletter control sequences out of 15000+600000
+ 17428 strings out of 493013
+ 318168 string characters out of 6139317
+ 392125 words of memory out of 5000000
+ 20614 multiletter control sequences out of 15000+600000
  12750 words of font info for 49 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,7n,56p,486b,460s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,7n,56p,486b,392s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-dist/fonts/type1/publi
@@ -1099,10 +1147,10 @@ t/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/pu
 blic/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmsy6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></
 usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on report.pdf (6 pages, 295611 bytes).
+Output written on report.pdf (5 pages, 295776 bytes).
 PDF statistics:
- 171 PDF objects out of 1000 (max. 8388607)
- 143 compressed objects within 2 object streams
- 33 named destinations out of 1000 (max. 500000)
- 153 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 175 PDF objects out of 1000 (max. 8388607)
+ 148 compressed objects within 2 object streams
+ 34 named destinations out of 1000 (max. 500000)
+ 169 words of extra memory for PDF output out of 10000 (max. 10000000)
 
