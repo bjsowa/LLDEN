@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  18 FEB 2018 23:31
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  19 FEB 2018 00:01
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1078,65 +1078,74 @@ Underfull \hbox (badness 10000) in paragraph at lines 168--173
 
  []
 
-<imgs/paper-cifar-10.png, id=102, 486.81876pt x 461.725pt>
-File: imgs/paper-cifar-10.png Graphic file (type png)
-
-<use imgs/paper-cifar-10.png>
-Package pdftex.def Info: imgs/paper-cifar-10.png used on input line 174.
-(pdftex.def)             Requested size: 179.99384pt x 170.71652pt.
-
-<imgs/paper-mnist-var.png, id=103, 529.98pt x 464.73625pt>
+<imgs/paper-mnist-var.png, id=102, 529.98pt x 464.73625pt>
 File: imgs/paper-mnist-var.png Graphic file (type png)
 
 <use imgs/paper-mnist-var.png>
-Package pdftex.def Info: imgs/paper-mnist-var.png used on input line 175.
-(pdftex.def)             Requested size: 194.6824pt x 170.71652pt.
- [3]
-<imgs/fig1-s.png, id=108, 622.325pt x 461.725pt>
+Package pdftex.def Info: imgs/paper-mnist-var.png used on input line 174.
+(pdftex.def)             Requested size: 227.12679pt x 199.16928pt.
+
+<imgs/paper-cifar-10.png, id=103, 486.81876pt x 461.725pt>
+File: imgs/paper-cifar-10.png Graphic file (type png)
+
+<use imgs/paper-cifar-10.png>
+Package pdftex.def Info: imgs/paper-cifar-10.png used on input line 175.
+(pdftex.def)             Requested size: 209.98909pt x 199.16928pt.
+
+Overfull \hbox (20.56181pt too wide) in paragraph at lines 174--176
+[] [] 
+ []
+
+[3] <imgs/fig1-v3.png, id=108, 642.4pt x 481.8pt>
+File: imgs/fig1-v3.png Graphic file (type png)
+ <use imgs/fig1-v3.png>
+Package pdftex.def Info: imgs/fig1-v3.png used on input line 178.
+(pdftex.def)             Requested size: 227.6174pt x 170.71652pt.
+
+<imgs/fig1-s.png, id=110, 622.325pt x 461.725pt>
 File: imgs/fig1-s.png Graphic file (type png)
  <use imgs/fig1-s.png>
-Package pdftex.def Info: imgs/fig1-s.png used on input line 178.
-(pdftex.def)             Requested size: 191.74126pt x 142.26378pt.
+Package pdftex.def Info: imgs/fig1-s.png used on input line 179.
+(pdftex.def)             Requested size: 230.09521pt x 170.71652pt.
 
-<imgs/fig2-v2.png, id=110, 642.4pt x 481.8pt>
-File: imgs/fig2-v2.png Graphic file (type png)
- <use imgs/fig2-v2.png>
-Package pdftex.def Info: imgs/fig2-v2.png used on input line 179.
-(pdftex.def)             Requested size: 189.6828pt x 142.26378pt.
+Overfull \hbox (41.15855pt too wide) in paragraph at lines 178--180
+[] [] 
+ []
+
 
 Underfull \hbox (badness 10000) in paragraph at lines 183--189
 
  []
 
-[4 <./imgs/paper-cifar-10.png> <./imgs/paper-mnist-var.png> <./imgs/fig1-s.png>
- <./imgs/fig2-v2.png>] [5pdfTeX warning (ext4): destination with the same ident
+[4 <./imgs/paper-mnist-var.png> <./imgs/paper-cifar-10.png> <./imgs/fig1-v3.png
+> <./imgs/fig1-s.png>] [5pdfTeX warning (ext4): destination with the same ident
 ifier (name{cite.lenet}) has been already used, duplicate ignored
 
 \@EveryShipout@Output ...@Org@Shipout \box \@cclv 
                                                   
-l.235     \end{document}
+l.240     \end{document}
                         ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 235.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 235.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 240.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 240.
  (./report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 235.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 235.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 240.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 240.
 Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: B210DF0671FE37F06EE7BC57C91B330F;1012.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 235.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 240.
  ) 
 Here is how much of TeX's memory you used:
  17428 strings out of 493013
  318168 string characters out of 6139317
- 392125 words of memory out of 5000000
+ 392122 words of memory out of 5000000
  20614 multiletter control sequences out of 15000+600000
  12750 words of font info for 49 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,7n,56p,486b,392s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,7n,56p,486b,390s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-dist/fonts/type1/publi
@@ -1147,7 +1156,7 @@ t/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/pu
 blic/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmsy6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></
 usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on report.pdf (5 pages, 295776 bytes).
+Output written on report.pdf (5 pages, 296970 bytes).
 PDF statistics:
  175 PDF objects out of 1000 (max. 8388607)
  148 compressed objects within 2 object streams

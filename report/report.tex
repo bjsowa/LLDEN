@@ -171,12 +171,12 @@
     \\
     \\
     \subsubsection{Original graph}
-    \includegraphics[height=6cm]{paper-cifar-10.png}
-    \includegraphics[height=6cm]{paper-mnist-var.png}
+    \includegraphics[height=7cm]{paper-mnist-var.png}
+    \includegraphics[height=7cm]{paper-cifar-10.png}
 
     \subsubsection{Our graph}
-    \includegraphics[height=5cm]{fig1-s.png}
-    \includegraphics[height=5cm]{fig2-v2.png}
+    \includegraphics[height=6cm]{fig1-v3.png}
+    \includegraphics[height=6cm]{fig1-s.png}
 
     \subsection{Issues}
 
@@ -198,11 +198,16 @@
         achieved when $l1$-regularization parameter equals $10^{-5}$. When that parameter was too small,
         then too many neurons were selected. Likewise, when the parameter was too large -- the network
         could not achieve good scores for the new task.
+        \item We could not reproduce results for the CIFAR-100 dataset while using modified AlexNet described
+        in the paper. Instead, we used CIFAR-10 and LeNet model, the same as the one in the older version
+        of the paper. Our implementation of the AlexNet is available in the source code.
     \end{itemize}
 
     \section {Conclusion}
     
-    Conclusion.
+    % To sum up, in this report 
+    % One might conclude, that information given in the paper is insufficient to exactly reproduce 
+    % presented results.
 
     \section{Acknowledgments}
 
