@@ -120,24 +120,15 @@ def main():
                 best_loss = min(test_loss, best_loss)
                 save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
 
-                # if is_best:
-                #     epochs = min(MAX_EPOCHS, epoch + 11)
-
-                # if epoch +1 == epochs:
-                #     break
-
                 suma = 0
                 for p in model.parameters():
                     p = p.data.cpu().numpy()
                     suma += (abs(p) < ZERO_THRESHOLD).sum()
-                print(suma)
+                print( "Number of zero weights: %d" % (suma) )
 
         else:
             # copy model 
             model_copy = copy.deepcopy(model)
-
-            print("==> Splitting Neurons")
-            split_neurons(model_copy, model)
 
             print("==> Selective Retraining")
 
@@ -321,7 +312,7 @@ def split_neurons(old_model, new_model):
             if( drift > 0.02 ):
                 suma += 1
 
-    print( suma )
+    print( "Number of neurons to split: %d" % (suma) )
 
 if __name__ == '__main__':
     main()
