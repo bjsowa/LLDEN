@@ -32,7 +32,7 @@
     Reproducibility of results in machine learning is crucial in order to make the experiment believable.
     However, many researchers state that there exists a reproducibility crisis on the science field.
     This problem seems to concern engineering studies, and among others -- machine
-    learning. This might be a major problem, cosidering the fact that machine learning is a very fast
+    learning. This might be a major problem, considering the fact that machine learning is a very fast
     growing field of research.
     To make projects reproducible, several points have to be taken into consideration, some of which are
     listed in this report.
@@ -92,12 +92,12 @@
     % 1. Study parameters
     % 2. Proposed technique details – codes, algorithms etc. (if applicable)
     Out of two specified datasets, the MNIST dataset is trained by Feedforward networks and Convolutional
-    neural networks are used in oder to train the CIFAR-10 dataset.
+    neural networks are used in order to train the CIFAR-10 dataset.
     \\
     \\
     Out of several models introduced in the paper, we have implemented the following Feedforward networks:
     \begin{enumerate}  
-        \item DNN-STL. Base deep neural network, each task has its own network and exacltly one output.
+        \item DNN-STL. Base deep neural network, each task has its own network and exactly one output.
         \item DNN-MTL. Base DNN trained for all tasks at once. One network with many outputs.
         \item DNN-L2. Base DNN, where at each task $t$, $W^{t}$ is initialized as $W^{t-1}$ and continously
         trained with SGD, with $l_{2}$-regularization between $W^{t}$ and $W^{t-1}$. For this purpose, we use
@@ -118,6 +118,10 @@
     \\
     In model training, we used SGD with momentum $0.9$ and weight decay parameter equal to $10^{-4}$.
     These parameters were not stated in the original paper, so we came up with our own.
+    \\
+    \\
+    For both datasets, we set the fixed values: every batch size is 256, learning rate $\eta = 0.1$ and
+    we iterate over 100 epochs for each task.
     
     % \subsubsection{Model Assessment}
     % Measuring the performance of the model trained in 2. Similar information
@@ -172,6 +176,23 @@
     \includegraphics[height=5cm]{fig1-s.png}
     \includegraphics[height=5cm]{fig2-v2.png}
 
+    \subsection{Issues}
+
+    Here are some issues we encountered:
+
+    \begin{itemize}
+        \item During the $l1$-regularization we noticed that weights do not exactly equal zero, but
+        oscillate around it. The solution was to set a certain threshold, that when the value is less than
+        that threshold, then we set the value to zero.
+        \item Implementation using PyTorch turned out to be problematic when we had to train only
+        some subset of neurons. The solution was to set \textit{hooks} that set neurons to zero
+        during each backpropagation.
+        \item A lot of model parameters were missing in the DEN paper. We found that the best score is
+        achieved when $l1$-regularization parameter equals $10^{-5}$. When that parameter was too small,
+        then too many neurons were selected. Likewise, when the parameter was too large -- the network
+        could not achieve good scores for the new task.
+    \end{itemize}
+
     \section {Conclusion}
     
     Conclusion.
@@ -199,7 +220,7 @@
 
         \bibitem{crisis}
             Monya Baker,
-            \href{https://www.nature.com/news/1-500-scientists-lift-the-lid-on-reproducibility-1.19970}{1,500 scientists lift the lid on reproducibility},
+            \href{https://www.nature.com/news/1-500-scientists-lift-the-lid-on-reproducibility-1.19970}{\textit{1,500 scientists lift the lid on reproducibility}},
             25 May 2016, corrected 28 July 2016.
 
     \end{thebibliography}
