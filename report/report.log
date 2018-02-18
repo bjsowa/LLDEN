@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  18 FEB 2018 16:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  18 FEB 2018 18:39
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -779,7 +779,11 @@ Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-)) (./report.aux)
+)) (./report.aux
+
+LaTeX Warning: Label `lenet' multiply defined.
+
+)
 \openout1 = `report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 26.
@@ -794,8 +798,7 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
 LaTeX Font Info:    ... okay on input line 26.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 26.
 LaTeX Font Info:    ... okay on input line 26.
-
-(/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+ (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count146
 \scratchdimen=\dimen171
@@ -871,7 +874,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 
 Non-PDF special ignored!{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 71--76
+Underfull \hbox (badness 10000) in paragraph at lines 71--77
 
  []
 
@@ -880,62 +883,93 @@ Underfull \hbox (badness 10000) in paragraph at lines 80--87
 
  []
 
-[2] <imgs/paper-cifar-10.png, id=16, 486.81876pt x 461.725pt>
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 112--119
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 136--144
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 136--144
+
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 145.
+
+(/usr/share/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 145.
+ [3]
+<imgs/paper-cifar-10.png, id=26, 486.81876pt x 461.725pt>
 File: imgs/paper-cifar-10.png Graphic file (type png)
 
 <use imgs/paper-cifar-10.png>
-Package pdftex.def Info: imgs/paper-cifar-10.png used on input line 144.
+Package pdftex.def Info: imgs/paper-cifar-10.png used on input line 158.
 (pdftex.def)             Requested size: 179.99384pt x 170.71652pt.
 
-<imgs/paper-mnist-var.png, id=17, 529.98pt x 464.73625pt>
+<imgs/paper-mnist-var.png, id=27, 529.98pt x 464.73625pt>
 File: imgs/paper-mnist-var.png Graphic file (type png)
 
 <use imgs/paper-mnist-var.png>
-Package pdftex.def Info: imgs/paper-mnist-var.png used on input line 145.
+Package pdftex.def Info: imgs/paper-mnist-var.png used on input line 159.
 (pdftex.def)             Requested size: 194.6824pt x 170.71652pt.
- <imgs/fig1-s.png, id=18, 622.325pt x 461.725pt>
-[3]
+ <imgs/fig1-s.png, id=28, 622.325pt x 461.725pt>
 File: imgs/fig1-s.png Graphic file (type png)
- <use imgs/fig1-s.png>
-Package pdftex.def Info: imgs/fig1-s.png used on input line 147.
+
+<use imgs/fig1-s.png>
+Package pdftex.def Info: imgs/fig1-s.png used on input line 161.
 (pdftex.def)             Requested size: 191.74126pt x 142.26378pt.
  <imgs/fig2-v2.png, id=30, 642.4pt x 481.8pt>
 File: imgs/fig2-v2.png Graphic file (type png)
 
 <use imgs/fig2-v2.png>
-Package pdftex.def Info: imgs/fig2-v2.png used on input line 148.
+Package pdftex.def Info: imgs/fig2-v2.png used on input line 162.
 (pdftex.def)             Requested size: 189.6828pt x 142.26378pt.
 
-Overfull \hbox (11.65996pt too wide) in paragraph at lines 147--149
+Overfull \hbox (11.65996pt too wide) in paragraph at lines 161--163
 [][] [] 
  []
 
 [4 <./imgs/paper-cifar-10.png> <./imgs/paper-mnist-var.png> <./imgs/fig1-s.png>
- <./imgs/fig2-v2.png>] [5] (./report.aux) ) 
+ <./imgs/fig2-v2.png>]
+Underfull \hbox (badness 1163) in paragraph at lines 180--183
+[] []\OT1/cmr/m/n/12 Y. Le-cun, L. Bot-tou, Y. Ben-gio, and P. Haffner, \OT1/cm
+r/m/it/12 Gradient-based
+ []
+
+[5] (./report.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 13417 strings out of 493013
- 257806 string characters out of 6139317
- 299551 words of memory out of 5000000
- 16666 multiletter control sequences out of 15000+600000
- 13102 words of font info for 50 fonts, out of 8000000 for 9000
+ 13433 strings out of 493013
+ 258064 string characters out of 6139317
+ 300593 words of memory out of 5000000
+ 16680 multiletter control sequences out of 15000+600000
+ 12750 words of font info for 49 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,7n,56p,486b,258s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb
-></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.
-pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/shar
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmti12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmti8.pfb>
-Output written on report.pdf (5 pages, 289884 bytes).
+ 62i,7n,56p,486b,197s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmmi6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mmi8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/
+share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmsy6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></
+usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on report.pdf (5 pages, 290358 bytes).
 PDF statistics:
- 82 PDF objects out of 1000 (max. 8388607)
- 55 compressed objects within 1 object stream
+ 78 PDF objects out of 1000 (max. 8388607)
+ 52 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  33 words of extra memory for PDF output out of 10000 (max. 10000000)
 

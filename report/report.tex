@@ -56,7 +56,7 @@
     \subsubsection{Dataset}
     % Information about the location and the retrieval process of the dataset is needed to
     % ensure access to the dataset as used in the study.
-    We use the same datasets as those used in the paper.
+    We use the same datasets as those introduced in the paper.
     \begin{enumerate}  
         \item CIFAR-10
         \item MNIST-Variation 
@@ -68,12 +68,12 @@
     % step towards a successful reproduction exercise. An independent researcher should be able
     % to follow and repeat how the data was preprocessed in the study. Also, it will be useful to
     % find preprocessing output information to compare to e.g. final feature vector dimension
-    We use a few preprocessing methods on the MNIST dataset. At first, we aplly random rotation
-    to the images. Then, we add Gaussian noise with parameters $\mu = 0$ and $\sigma = 0.2$.
+    Authors of the paper say, that in the MNIST-Variation the handwritten digits are rotated to
+    arbitrary angles and have noise in the background, which makes the prediction task more challenging.
     \\
     \\
-    No detailed preprocessing information was given, when it comes to the preprocessing used in the DEN paper.
-
+    We use the same preprocessing methods on the MNIST dataset. At first, we aplly random rotation
+    to the images. Then, we add Gaussian noise with our custom parameters $\mu = 0$ and $\sigma = 0.2$.
     
     \subsubsection{Dataset Partitions}
     %  Details of how the dataset was divided for use as training and test data.
@@ -82,7 +82,7 @@
     They form each task to be one-versus-rest binary classification.
     \\
     \\
-    For the CIFAR-10 dataset, $5,000$ out of $60,000$ images are used for training and the remainder
+    For the CIFAR-10 dataset, for each class, $5,000$ out of $6,000$ images are used for training and the remainder
     is used for test.
     
     \subsubsection{Model training}
@@ -109,18 +109,15 @@
         \item DEN. Dynamically Expandable Network, but only with Selective Training algorithm used.   
     \end{enumerate}
     \bigskip
-    Also, we have implemented following Convolutional networks:
-    \begin{enumerate}
-        \item CNN-STL.
-        \item CNN-MTL.
-        \item CNN.
-        \item CNN-L2.
-    \end{enumerate}
-    \bigskip
+    We use two-layer network with 312-128 neurons with ReLU activation.
+    When it comes to the Convolutional networks, we use LeNet, with two convolutional layers
+    and three fully-connected layers.
+    \\
+    \\
     In model training, we used SGD with momentum $0.9$ and weight decay parameter equal to $10^{-4}$.
-    These parameters were not stated in the original paper.
+    These parameters were not stated in the original paper, so we came up with our own.
     
-    \subsubsection{Model Assessment}
+    % \subsubsection{Model Assessment}
     % Measuring the performance of the model trained in 2. Similar information
     % as in 2 applies here as well.
     
@@ -128,12 +125,29 @@
     % Most operations of machine learning algorithms involves randomization.
     % Therefore, it is essential to set seed values to control the randomization process in
     % order to be able to repeat the same process again.
+    Authors of the paper do not state how they set seed values. On the other hand, we use constant
+    seed value.
     
     \subsubsection{Software and Hardware Environment}
     % Due to the fact that software packages/modules are in continual
     % development with possible alterations to internal implementation algorithms, it is important
     % that the details of the software environment used (modules, packages and version numbers)
     % be made available.
+    All models and algorithms in the DEN paper were implemented using the Tensorflow library.
+    Package version is not specified.
+    \\
+    \\
+    In order to implement our version of the network, we used PyTorch (version 0.3.0.post4).
+    \\
+    \\
+    Our hardware setup (GCloud virtual machine):
+    \begin{itemize}
+        \item 4 x vCPU
+        \item 16GB RAM
+        \item NVIDIA Tesla K80
+    \end{itemize}
+    \bigskip
+    No hardware information is given about the machine used in the DEN paper.
 
     % Some data intensive studies are only
     % reproducible on the same machine capacity as was used to produce the original result. So,
@@ -150,14 +164,27 @@
     \section {Conclusion}
     
     Conclusion.
+
+    \section{Acknowledgments}
+
+    The authors thank Google for GCE Credits awarded through Google Cloud Platform Education Grants
+    to the Neural Networks and Deep Learning course and to this project.    
         
     \begin{thebibliography}{9}
-        \bibitem{lamport94}
-            Leslie Lamport,
-            \textit{\LaTeX: a document preparation system},
-            Addison Wesley, Massachusetts,
-            2nd edition,
-            1994.
+        \bibitem{den}
+            Jaehong Yoon, Eunho Yang, Sung Ju Hwang,
+            \textit{Lifelong Learning with Dynamically Expandable Networks},
+            arXiv:1708.01547v1.
+
+        \bibitem{lenet}
+            Y. Lecun, L. Bottou, Y. Bengio, and P. Haffner,
+            \textit{Gradient-based Learning Applied to Document Recognition},
+            Proceedings of the IEEE, 86(11):2278–2324, 1998.
+
+        \bibitem{lenet}
+            Babatunde K. Olorisade, Pearl Brereton, Peter Andras, 
+            \textit{Reproducibility in Machine Learning-Based Studies: An Example of Text Mining},
+            16 Jun 2017, ICML 2017 RML Submission.
     \end{thebibliography}
     
     \end{document}
