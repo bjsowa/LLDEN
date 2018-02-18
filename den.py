@@ -1,9 +1,8 @@
 from __future__ import print_function
 
 import os
-import time
-import shutil
 import random
+import copy
 
 import numpy as np
 
@@ -11,8 +10,6 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
-from torch.autograd import Variable
-from progress.bar import Bar
 
 from models import FeedForward
 from utils import *
@@ -29,9 +26,19 @@ LEARNING_RATE = 0.01
 MOMENTUM      = 0.9
 WEIGHT_DECAY  = 0
 
+# Step Decay
+LR_DROP       = 0.5
+EPOCHS_DROP   = 20
+
 # MISC
-EPOCHS = 200
+MAX_EPOCHS = 200
 CUDA = True
+
+# L1 REGULARIZATION
+L1_COEFF = 1e-5
+
+# weight below this value will be considered as zero
+ZERO_THRESHOLD = 1e-4
 
 # Manual seed
 SEED = 20
@@ -41,238 +48,280 @@ torch.manual_seed(SEED)
 if CUDA:
     torch.cuda.manual_seed_all(SEED)
 
-best_acc = 0  # best test accuracy
+ALL_CLASSES = range(10)
 
 def main():
-    global best_acc
+
+    if not os.path.isdir(CHECKPOINT):
+        os.makedirs(CHECKPOINT)
 
     print('==> Preparing dataset')
 
     trainloader, validloader, testloader = load_MNIST(batch_size = BATCH_SIZE, num_workers = NUM_WORKERS)
 
     print("==> Creating model")
-    model = FeedForward(num_classes=10)
+    model = FeedForward(num_classes=len(ALL_CLASSES))
 
     if CUDA:
         model = model.cuda()
         model = nn.DataParallel(model)
         cudnn.benchmark = True
 
-    print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
+    # initialize parameters
 
-    layers = list(model.module.classifier)
-    criterion = MyLoss(1e-4, layers)
-    optimizer = optim.SGD(model.parameters(), 
+    for name, param in model.named_parameters():
+        if 'bias' in name:
+            param.data.zero_()
+        elif 'weight' in name:
+            param.data.normal_(0,0.005)
+
+    print('    Total params: %.2fK' % (sum(p.numel() for p in model.parameters()) / 1000) )
+
+    criterion = nn.BCELoss()
+
+    CLASSES = []
+    AUROCs = []
+
+    for t, cls in enumerate(ALL_CLASSES):
+
+        print('\nTask: [%d | %d]\n' % (t + 1, len(ALL_CLASSES)))
+
+        CLASSES.append(cls)
+
+        if t == 0:
+            print("==> Learning")
+
+            optimizer = optim.SGD(model.parameters(), 
+                    lr=LEARNING_RATE, 
+                    momentum=MOMENTUM, 
+                    weight_decay=WEIGHT_DECAY
+                )
+
+            penalty = l1_penalty(coeff = L1_COEFF)
+            best_loss = 1e10
+            learning_rate = LEARNING_RATE
+            # epochs = 10
+
+            for epoch in range(MAX_EPOCHS):
+
+                # decay learning rate
+                if (epoch + 1) % EPOCHS_DROP == 0:
+                    learning_rate *= LR_DROP
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = learning_rate
+
+                print('Epoch: [%d | %d]' % (epoch + 1, MAX_EPOCHS))
+
+                train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
+                test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
+
+                # save model
+                is_best = test_loss < best_loss
+                best_loss = min(test_loss, best_loss)
+                save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
+
+                # if is_best:
+                #     epochs = min(MAX_EPOCHS, epoch + 11)
+
+                # if epoch +1 == epochs:
+                #     break
+
+                suma = 0
+                for p in model.parameters():
+                    p = p.data.cpu().numpy()
+                    suma += (abs(p) < ZERO_THRESHOLD).sum()
+                print(suma)
+
+        else:
+            # copy model 
+            model_copy = copy.deepcopy(model)
+
+            print("==> Splitting Neurons")
+            split_neurons(model_copy, model)
+
+            print("==> Selective Retraining")
+
+            ## Solve Eq.3
+
+            # freeze all layers except the last one (last 2 parameters)
+            params = list(model.parameters())
+            for param in params[:-2]:
+                param.requires_grad = False
+
+            optimizer = optim.SGD(
+                filter(lambda p: p.requires_grad, model.parameters()),
                 lr=LEARNING_RATE, 
                 momentum=MOMENTUM, 
                 weight_decay=WEIGHT_DECAY
             )
 
-    print("==> Learning")
+            penalty = l1_penalty(coeff = L1_COEFF)
+            best_loss = 1e10
+            learning_rate = LEARNING_RATE
 
-    for epoch in range(EPOCHS):
+            for epoch in range(MAX_EPOCHS):
 
-        # adjust_learning_rate(optimizer, epoch + 1)
+                # decay learning rate
+                if (epoch + 1) % EPOCHS_DROP == 0:
+                    learning_rate *= LR_DROP
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = learning_rate
 
-        print('\nEpoch: [%d | %d]' % (epoch + 1, EPOCHS))
+                print('Epoch: [%d | %d]' % (epoch + 1, MAX_EPOCHS))
 
-        train_loss, train_acc = train(trainloader, model, criterion, optimizer )
-        test_loss, test_acc = train(validloader, model, criterion, test = True )
-
-        # # save model
-        # is_best = test_acc > best_acc
-        # best_acc = max(test_acc, best_acc)
-        # save_checkpoint({
-        #     'epoch': epoch + 1,
-        #     'state_dict': model.state_dict(),
-        #     'acc': test_acc,
-        #     'optimizer': optimizer.state_dict()
-        #     }, is_best)
+                train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, penalty = penalty, use_cuda = CUDA)
+                train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, penalty = penalty, use_cuda = CUDA)
 
 
+            for param in model.parameters():
+                param.requires_grad = True
 
-class MyLoss(nn.Module):
-    def __init__(self, coeff, layers):
-        super(MyLoss, self).__init__()
-        self.coeff = coeff
-        self.layers = layers
-        self.loss = nn.CrossEntropyLoss()
+            print("==> Selecting Neurons")
+            hooks = select_neurons(model, t)
 
-    def forward(self, x, y):
-        reg = 0
-        for layer in self.layers:
-            for p in layer.parameters():
-                reg += torch.norm(p,1)
-        return self.loss(x,y) + self.coeff * reg
+            print("==> Training Selected Neurons")
+
+            optimizer = optim.SGD(
+                model.parameters(),
+                lr=LEARNING_RATE, 
+                momentum=MOMENTUM, 
+                weight_decay=1e-4
+            )
+
+            best_loss = 1e10
+            learning_rate = LEARNING_RATE
+
+            for epoch in range(MAX_EPOCHS):
+
+                # decay learning rate
+                if (epoch + 1) % EPOCHS_DROP == 0:
+                    learning_rate *= LR_DROP
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = learning_rate
+
+                print('Epoch: [%d | %d]' % (epoch + 1, MAX_EPOCHS))
+
+                train_loss = train(trainloader, model, criterion, ALL_CLASSES, [cls], optimizer = optimizer, use_cuda = CUDA)
+                test_loss = train(validloader, model, criterion, ALL_CLASSES, [cls], test = True, use_cuda = CUDA)
+
+                # save model
+                is_best = test_loss < best_loss
+                best_loss = min(test_loss, best_loss)
+                save_checkpoint({'state_dict': model.state_dict()}, CHECKPOINT, is_best)
+
+            # remove hooks
+            for hook in hooks:
+                hook.remove()
 
 
-def train(batchloader, model, criterion, optimizer = None, test = False):
+            print("==> Splitting Neurons")
+            split_neurons(model_copy, model)
+
+
+
+        print("==> Calculating AUROC")
+
+        filepath_best = os.path.join(CHECKPOINT, "best.pt")
+        checkpoint = torch.load(filepath_best)
+        model.load_state_dict(checkpoint['state_dict'])
+
+        auroc = calc_avg_AUROC(model, testloader, ALL_CLASSES, CLASSES, CUDA)
+
+        print( 'AUROC: {}'.format(auroc) )
+
+        AUROCs.append(auroc)
+
+    print( '\nAverage Per-task Performance over number of tasks' )
+    for i, p in enumerate(AUROCs):
+        print("%d: %f" % (i+1,p))
+
+
+class my_hook(object):
+
+    def __init__(self, mask1, mask2):
+        self.mask1 = torch.Tensor(mask1).long().nonzero().view(-1).numpy()
+        self.mask2 = torch.Tensor(mask2).long().nonzero().view(-1).numpy()
+
+    def __call__(self, grad):
+
+        grad_clone = grad.clone()
+        if self.mask1.size:
+            grad_clone[self.mask1, :] = 0
+        if self.mask2.size:
+            grad_clone[:, self.mask2] = 0
+        return grad_clone
+
+
+def select_neurons(model, task):
     
-    # switch to train or evaluate mode
-    if test:
-        model.eval()
-    else:
-        model.train()
-
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
-    losses = AverageMeter()
-    top1 = AverageMeter()
-    top5 = AverageMeter()
-    end = time.time()
-
-    if test:
-        bar = Bar('Testing', max=len(batchloader))
-    else:
-        bar = Bar('Training', max=len(batchloader))
-
-    for batch_idx, (inputs, targets) in enumerate(batchloader):
-
-        # measure data loading time
-        data_time.update(time.time() - end)
-
-        if CUDA:
-            inputs = inputs.cuda()
-            targets = targets.cuda()
-
-        inputs = Variable(inputs)
-        targets = Variable(targets)
-
-        #compute output
-        outputs = model(inputs)
-        loss = criterion(outputs, targets)
-
-        # measure accuracy and record loss
-        prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
-        losses.update(loss.data[0], inputs.size(0))
-        top1.update(prec1[0], inputs.size(0))
-        top5.update(prec5[0], inputs.size(0))
-
-        if not test:
-            # compute gradient and do SGD step
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
-
-        # plot progress
-        bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
-                    batch=batch_idx + 1,
-                    size=len(batchloader),
-                    data=data_time.avg,
-                    bt=batch_time.avg,
-                    total=bar.elapsed_td,
-                    eta=bar.eta_td,
-                    loss=losses.avg,
-                    top1=top1.avg,
-                    top5=top5.avg)
-        bar.next()
-
-    bar.finish()
-    return (losses.avg, top1.avg)
-
-
-def loss2(model, outputs, targets):
-    loss = nn.CrossEntropyLoss()
-    coeff = 1e-4
-    reg = 0
-    for layer in model.parameters():
-        reg += torch.norm(layer, 1)
-    return loss(outputs, targets) + coeff * reg
-
-def loss3(model, outputs, targets):
-    loss = nn.CrossEntropyLoss()
-    coeff = 1e-4
-    layers = list(model.parameters())
-    reg = torch.norm(layers[-1], 1)
-    return loss(outputs, targets) + coeff * reg
-
-def loss4(model, outputs, targets):
-    pass
-
-def bfs(model, outputs):
-    model = copy.deepcopy(model)
+    prev_active = [True]*len(ALL_CLASSES)
+    prev_active[task] = False
     
-    # TODO: set all to ones? or outputs?
-    # prev_active = np.ones(outputs.size())
-    prev_active = outputs
-    
-    layers = reversed(list(model.classifier.parameters()))
+    layers = []
+    for name, param in model.named_parameters():
+        if 'bias' not in name:
+            layers.append(param)
+    layers = reversed(layers)
+
+    hooks = []
+    selected = []
     
     for layer in layers:
 
         x_size, y_size = layer.size()
+
+        active = [True]*y_size
+        data = layer.data
+
         for x in range(x_size):
 
             # we skip the weight if connected neuron wasn't selected
-            if (prev_active[x] < 1e-2):
+            if prev_active[x]:
                 continue
 
             for y in range(y_size):
-                weight = layer[x][y]
+                weight = data[x,y]
                 # check if weight is active
-                if (weight > 1e-2):
-                    # mark affected connected neuron as active
-                    active[y] = 1
+                if (weight > ZERO_THRESHOLD):
+                    # mark connected neuron as active
+                    active[y] = False
 
-            # TODO: do something with active neurons
-        
+        h = layer.register_hook(my_hook(prev_active, active))
+
+        hooks.append(h)
         prev_active = active
 
+        selected.append( (y_size - sum(active), y_size) )
 
-def incremental_learning(model, datasets, tau, sigma):
+    for nr, (sel, neurons) in enumerate(reversed(selected)):
+        print( "layer %d: %d / %d" % (nr+1, sel, neurons) )
 
-    for t, dataset in enumerate(datasets):
-        if t == 0:
-            criterion = (lambda outputs, targets: loss1(model, output, targets))
-            train(dataset, model, loss1)
-        else:
-            loss, model = selective_training(prev_model)
-            if loss > tau:
-                model = dynamic_network_expansion(model)
+    return hooks
 
-def selective_training(model):
-    """Finds neurons that are relevant to the new
-       task and retrains the network parameters
-       associated with them.
-    """
-    # freeze all layers except the last one
-    layers = list(model.parameters())
-    for layer in layers[:-1]:
-        layer.requires_grad = False
 
-    # train the network and receive sparse
-    # connections on the last layer
-    train(dataset, model, loss3)
+def split_neurons(old_model, new_model):
 
-    # use breadth-first search on the network
-    # to receive set of affected neurons
-    subnetwork = bfs(model)
+    old_layers = []
+    for name, param in old_model.named_parameters():
+        if 'bias' not in name:
+            old_layers.append(param)
 
-    # train only the weights of the acquired
-    # subnetwork
-    train(dataset, subnetwork, loss4)
+    new_layers = []
+    for name, param in new_model.named_parameters():
+        if 'bias' not in name:
+            new_layers.append(param)
 
-def dynamic_network_expansion(weights, tau):
-    """Expands the network capacity in a top-down
-       manner, while eliminating any unnecessary
-       neurons using group-sparsity regularization.
-    """
-    #TODO: implementation
-    pass
+    suma = 0
+    for old_layer, new_layer in zip(old_layers, new_layers):
 
-def network_split_duplication(weights, sigma):
-    """Calculates the drift for each unit to
-       identify units that have drifted too much
-       from their original values during training
-       and duplicates them.
-    """
-    #TODO: implementation
-    pass
+        for data1, data2 in zip(old_layer.data, new_layer.data):
+            diff = data1 - data2
+            drift = diff.norm(2)
 
+            if( drift > 0.02 ):
+                suma += 1
+
+    print( suma )
 
 if __name__ == '__main__':
     main()
