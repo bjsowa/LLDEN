@@ -9,13 +9,14 @@
     \usepackage{todonotes}
     \usepackage{amsmath}
     \usepackage{ amssymb }    
+    \usepackage{hyperref}    
     
     \graphicspath{ {imgs/} }
     
     \newcommand{\norm}[1]{\left\lVert#1\right\rVert}    
     
     \setcounter{secnumdepth}{0}
-    \pagenumbering{gobble}
+    % \pagenumbering{gobble}
     
     % \usepackage[top=0.1in, bottom=0.7in, left=1.35in, right=1.35in]{geometry}
     
@@ -27,15 +28,14 @@
     \maketitle
     
     \section {Motivation}
-    
-    Lifelong learning (Thrun, 1995), the problem of continual learning where tasks arrive in sequence, is
-    an important topic in transfer learning. The primary goal of lifelong learning is to leverage knowledge
-    from earlier tasks for obtaining better performance, or faster convergence/training speed on models
-    for later tasks. While there exist many different approaches to tackle this problem, we consider
-    lifelong learning under deep learning to exploit the power of deep neural networks. Fortunately, for
-    deep learning, storing and transferring knowledge can be done in a straightforward manner through
-    the learned network weights. The learned weights can serve as the knowledge for the existing tasks,
-    and the new task can leverage this by simply sharing these weights.
+
+    Reproducibility of results in machine learning is crucial in order to make the experiment believable.
+    However, many researchers state that there exists a reproducibility crisis on the science field.
+    This problem seems to concern engineering studies, and among others -- machine
+    learning. This might be a major problem, cosidering the fact that machine learning is a very fast
+    growing field of research.
+    To make projects reproducible, several points have to be taken into consideration, some of which are
+    listed in this report.
     
     \section{Introduction}
     
@@ -91,9 +91,11 @@
     % crucial to reproduction. Necessary information include but not limited to:
     % 1. Study parameters
     % 2. Proposed technique details – codes, algorithms etc. (if applicable)
-    
-
-    Out of introduced in the paper several models, we have implemented the following Feedforward networks:
+    Out of two specified datasets, the MNIST dataset is trained by Feedforward networks and Convolutional
+    neural networks are used in oder to train the CIFAR-10 dataset.
+    \\
+    \\
+    Out of several models introduced in the paper, we have implemented the following Feedforward networks:
     \begin{enumerate}  
         \item DNN-STL. Base deep neural network, each task has its own network and exacltly one output.
         \item DNN-MTL. Base DNN trained for all tasks at once. One network with many outputs.
@@ -154,7 +156,16 @@
     % the hardware information are sometimes essential.
     
     \subsection {Results}
-      
+
+    In this section, we are going to show our results and explain encountered issues.
+
+    \subsubsection{Performance evaluation}
+
+    In order to evaluate performance of the networks we had to implement the AUROC (The Area Under an ROC
+    Curve) function, where ROC curve is created by plotting the true positive rate against the false
+    positive rate at various thresholds. The larger the computed area, the better our binary classification works. 
+    \\
+    \\
     \includegraphics[height=6cm]{paper-cifar-10.png}
     \includegraphics[height=6cm]{paper-mnist-var.png}
 
@@ -185,6 +196,12 @@
             Babatunde K. Olorisade, Pearl Brereton, Peter Andras, 
             \textit{Reproducibility in Machine Learning-Based Studies: An Example of Text Mining},
             16 Jun 2017, ICML 2017 RML Submission.
+
+        \bibitem{crisis}
+            Monya Baker,
+            \href{https://www.nature.com/news/1-500-scientists-lift-the-lid-on-reproducibility-1.19970}{1,500 scientists lift the lid on reproducibility},
+            25 May 2016, corrected 28 July 2016.
+
     \end{thebibliography}
     
     \end{document}
