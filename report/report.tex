@@ -7,9 +7,12 @@
     \usepackage{blindtext}
     \usepackage{graphicx}
     \usepackage{todonotes}
+    \usepackage{amsmath}
+    \usepackage{ amssymb }    
     
     \graphicspath{ {imgs/} }
     
+    \newcommand{\norm}[1]{\left\lVert#1\right\rVert}    
     
     \setcounter{secnumdepth}{0}
     \pagenumbering{gobble}
@@ -55,7 +58,7 @@
     % ensure access to the dataset as used in the study.
     We use the same datasets as those used in the paper.
     \begin{enumerate}  
-        \item CIFAR-100 
+        \item CIFAR-10
         \item MNIST-Variation 
     \end{enumerate}
     
@@ -65,13 +68,22 @@
     % step towards a successful reproduction exercise. An independent researcher should be able
     % to follow and repeat how the data was preprocessed in the study. Also, it will be useful to
     % find preprocessing output information to compare to e.g. final feature vector dimension
-    \todo[inline]{TODO: Z jakiego preprocessingu korzystamy?}
+    We use a few preprocessing methods on the MNIST dataset. At first, we aplly random rotation
+    to the images. Then, we add Gaussian noise with parameters $\mu = 0$ and $\sigma = 0.2$.
+    \\
+    \\
+    No detailed preprocessing information was given, when it comes to the preprocessing used in the DEN paper.
+
     
     \subsubsection{Dataset Partitions}
     %  Details of how the dataset was divided for use as training and test data.
-    For the MNIST dataset, the authors of DEN paper use 1,000/200/5,000 images for train/val/test split for each class.
+    For the MNIST dataset, the authors of DEN paper use 1,000/200/5,000 images for
+    train/val/test split for each class.
     They form each task to be one-versus-rest binary classification.
-    \todo[inline]{TODO: Jak my dzielimy datasety?}
+    \\
+    \\
+    For the CIFAR-10 dataset, $5,000$ out of $60,000$ images are used for training and the remainder
+    is used for test.
     
     \subsubsection{Model training}
     % The process of fitting the model to the data. Making available, as much
@@ -79,6 +91,34 @@
     % crucial to reproduction. Necessary information include but not limited to:
     % 1. Study parameters
     % 2. Proposed technique details – codes, algorithms etc. (if applicable)
+    
+
+    Out of introduced in the paper several models, we have implemented the following Feedforward networks:
+    \begin{enumerate}  
+        \item DNN-STL. Base deep neural network, each task has its own network and exacltly one output.
+        \item DNN-MTL. Base DNN trained for all tasks at once. One network with many outputs.
+        \item DNN-L2. Base DNN, where at each task $t$, $W^{t}$ is initialized as $W^{t-1}$ and continously
+        trained with SGD, with $l_{2}$-regularization between $W^{t}$ and $W^{t-1}$. For this purpose, we use
+        the equation:
+
+        $$ \underset{W_{l}^{\mathcal{N}}}{\text{minimize }} \mathcal{L}(W^{t}; \mathcal{D}_{t}) + \lambda \norm{W^{t} - W^{t-1}}^{2}_{2}, $$
+
+        where $\lambda = 0.005$.
+
+        \item DNN. Same as previous, but no $l_{2}$-regularization is used.
+        \item DEN. Dynamically Expandable Network, but only with Selective Training algorithm used.   
+    \end{enumerate}
+    \bigskip
+    Also, we have implemented following Convolutional networks:
+    \begin{enumerate}
+        \item CNN-STL.
+        \item CNN-MTL.
+        \item CNN.
+        \item CNN-L2.
+    \end{enumerate}
+    \bigskip
+    In model training, we used SGD with momentum $0.9$ and weight decay parameter equal to $10^{-4}$.
+    These parameters were not stated in the original paper.
     
     \subsubsection{Model Assessment}
     % Measuring the performance of the model trained in 2. Similar information
@@ -89,32 +129,28 @@
     % Therefore, it is essential to set seed values to control the randomization process in
     % order to be able to repeat the same process again.
     
-    \subsubsection{Software Environment}
+    \subsubsection{Software and Hardware Environment}
     % Due to the fact that software packages/modules are in continual
     % development with possible alterations to internal implementation algorithms, it is important
     % that the details of the software environment used (modules, packages and version numbers)
-    % be made available
-    
-    \subsubsection{Hardware Environment}
+    % be made available.
+
     % Some data intensive studies are only
     % reproducible on the same machine capacity as was used to produce the original result. So,
     % the hardware information are sometimes essential.
     
     \subsection {Results}
-    
-    The following image does not show any wombats
-    \includegraphics[height=\baselineskip]{example-image}.
       
-    \includegraphics[height=3cm]{figure_1.png}
-    
-    \includegraphics[height=3cm]{example-image-a} \includegraphics[width=5cm]{example-image-b}
-    
+    \includegraphics[height=6cm]{paper-cifar-10.png}
+    \includegraphics[height=6cm]{paper-mnist-var.png}
+
+    \includegraphics[height=5cm]{fig1-s.png}
+    \includegraphics[height=5cm]{fig2-v2.png}
+
     \section {Conclusion}
     
     Conclusion.
-    
-    % Zawartość sceny do wyrenderowania znajduje się w pliku \texttt{scene.ml}.
-    
+        
     \begin{thebibliography}{9}
         \bibitem{lamport94}
             Leslie Lamport,

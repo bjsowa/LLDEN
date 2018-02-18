@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  15 FEB 2018 20:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.6.11)  18 FEB 2018 16:49
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -712,34 +712,102 @@ LaTeX Info: Redefining \addtolength on input line 81.
 )
 \c@@todonotes@numberoftodonotes=\count133
 )
-(./report.aux)
+(/usr/share/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2016/11/05 v2.16a AMS math features
+\@mathmargin=\skip46
+
+For additional information on amsmath, use the `?' option.
+(/usr/share/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01 AMS text
+
+(/usr/share/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks39
+\ex@=\dimen162
+))
+(/usr/share/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen163
+)
+(/usr/share/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count134
+LaTeX Info: Redefining \frac on input line 213.
+\uproot@=\count135
+\leftroot@=\count136
+LaTeX Info: Redefining \overline on input line 375.
+\classnum@=\count137
+\DOTSCASE@=\count138
+LaTeX Info: Redefining \ldots on input line 472.
+LaTeX Info: Redefining \dots on input line 475.
+LaTeX Info: Redefining \cdots on input line 596.
+\Mathstrutbox@=\box37
+\strutbox@=\box38
+\big@size=\dimen164
+LaTeX Font Info:    Redeclaring font encoding OML on input line 712.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
+\macc@depth=\count139
+\c@MaxMatrixCols=\count140
+\dotsspace@=\muskip10
+\c@parentequation=\count141
+\dspbrk@lvl=\count142
+\tag@help=\toks40
+\row@=\count143
+\column@=\count144
+\maxfields@=\count145
+\andhelp@=\toks41
+\eqnshift@=\dimen165
+\alignsep@=\dimen166
+\tagshift@=\dimen167
+\tagwidth@=\dimen168
+\totwidth@=\dimen169
+\lineht@=\dimen170
+\@envbody=\toks42
+\multlinegap=\skip47
+\multlinetaggap=\skip48
+\mathdisplay@stack=\toks43
+LaTeX Info: Redefining \[ on input line 2817.
+LaTeX Info: Redefining \] on input line 2818.
+)
+(/usr/share/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(/usr/share/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (./report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
-LaTeX Font Info:    ... okay on input line 23.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 23.
-LaTeX Font Info:    ... okay on input line 23.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 23.
-LaTeX Font Info:    ... okay on input line 23.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 23.
-LaTeX Font Info:    ... okay on input line 23.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 23.
-LaTeX Font Info:    ... okay on input line 23.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 23.
-LaTeX Font Info:    ... okay on input line 23.
- (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+
+(/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count134
-\scratchdimen=\dimen162
-\scratchbox=\box37
-\nofMPsegments=\count135
-\nofMParguments=\count136
-\everyMPshowfont=\toks39
-\MPscratchCnt=\count137
-\MPscratchDim=\dimen163
-\MPnumerator=\count138
-\makeMPintoPDFobject=\count139
-\everyMPtoPDFconversion=\toks40
+\scratchcounter=\count146
+\scratchdimen=\dimen171
+\scratchbox=\box39
+\nofMPsegments=\count147
+\nofMParguments=\count148
+\everyMPshowfont=\toks44
+\MPscratchCnt=\count149
+\MPscratchDim=\dimen172
+\MPnumerator=\count150
+\makeMPintoPDFobject=\count151
+\everyMPtoPDFconversion=\toks45
 ) (/usr/share/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2017/03/19 v0.25 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -790,65 +858,84 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 ABD: EveryShipout initializing macros
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 24.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 24.
- [1
+LaTeX Font Info:    Try loading font information for U+msa on input line 27.
+
+(/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 27.
+
+(/usr/share/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
 
 
 Non-PDF special ignored!{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-<example-image.png, id=12, 401.5pt x 301.125pt>
-File: example-image.png Graphic file (type png)
- <use example-image.png>
-Package pdftex.def Info: example-image.png used on input line 106.
-(pdftex.def)             Requested size: 19.32875pt x 14.5pt.
+Underfull \hbox (badness 10000) in paragraph at lines 71--76
 
-<imgs/figure_1.png, id=13, 899.7615pt x 744.381pt>
-File: imgs/figure_1.png Graphic file (type png)
- <use imgs/figure_1.png>
-Package pdftex.def Info: imgs/figure_1.png used on input line 108.
-(pdftex.def)             Requested size: 103.17522pt x 85.35826pt.
+ []
 
-<example-image-a.png, id=15, 401.5pt x 301.125pt> [2 </usr/share/texmf-dist/tex
-/latex/mwe/example-image.png>]
-File: example-image-a.png Graphic file (type png)
- <use example-image-a.png>
-Package pdftex.def Info: example-image-a.png used on input line 110.
-(pdftex.def)             Requested size: 113.80992pt x 85.35826pt.
 
-<example-image-b.png, id=19, 401.5pt x 301.125pt>
-File: example-image-b.png Graphic file (type png)
- <use example-image-b.png>
-Package pdftex.def Info: example-image-b.png used on input line 110.
-(pdftex.def)             Requested size: 142.26378pt x 106.70024pt.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 121.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 121.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 121.
+Underfull \hbox (badness 10000) in paragraph at lines 80--87
 
-[3 <./imgs/figure_1.png> </usr/share/texmf-dist/tex/latex/mwe/example-image-a.p
-ng> </usr/share/texmf-dist/tex/latex/mwe/example-image-b.png>] (./report.aux) )
- 
+ []
+
+[2] <imgs/paper-cifar-10.png, id=16, 486.81876pt x 461.725pt>
+File: imgs/paper-cifar-10.png Graphic file (type png)
+
+<use imgs/paper-cifar-10.png>
+Package pdftex.def Info: imgs/paper-cifar-10.png used on input line 144.
+(pdftex.def)             Requested size: 179.99384pt x 170.71652pt.
+
+<imgs/paper-mnist-var.png, id=17, 529.98pt x 464.73625pt>
+File: imgs/paper-mnist-var.png Graphic file (type png)
+
+<use imgs/paper-mnist-var.png>
+Package pdftex.def Info: imgs/paper-mnist-var.png used on input line 145.
+(pdftex.def)             Requested size: 194.6824pt x 170.71652pt.
+ <imgs/fig1-s.png, id=18, 622.325pt x 461.725pt>
+[3]
+File: imgs/fig1-s.png Graphic file (type png)
+ <use imgs/fig1-s.png>
+Package pdftex.def Info: imgs/fig1-s.png used on input line 147.
+(pdftex.def)             Requested size: 191.74126pt x 142.26378pt.
+ <imgs/fig2-v2.png, id=30, 642.4pt x 481.8pt>
+File: imgs/fig2-v2.png Graphic file (type png)
+
+<use imgs/fig2-v2.png>
+Package pdftex.def Info: imgs/fig2-v2.png used on input line 148.
+(pdftex.def)             Requested size: 189.6828pt x 142.26378pt.
+
+Overfull \hbox (11.65996pt too wide) in paragraph at lines 147--149
+[][] [] 
+ []
+
+[4 <./imgs/paper-cifar-10.png> <./imgs/paper-mnist-var.png> <./imgs/fig1-s.png>
+ <./imgs/fig2-v2.png>] [5] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 12567 strings out of 493013
- 249116 string characters out of 6139317
- 288516 words of memory out of 5000000
- 15851 multiletter control sequences out of 15000+600000
- 9507 words of font info for 33 fonts, out of 8000000 for 9000
+ 13417 strings out of 493013
+ 257806 string characters out of 6139317
+ 299551 words of memory out of 5000000
+ 16666 multiletter control sequences out of 15000+600000
+ 13102 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,7n,80p,462b,611s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmti12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti
-8.pfb>
-Output written on report.pdf (3 pages, 113422 bytes).
+ 62i,7n,56p,486b,258s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb
+></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.
+pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/shar
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmti12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmti8.pfb>
+Output written on report.pdf (5 pages, 289884 bytes).
 PDF statistics:
- 43 PDF objects out of 1000 (max. 8388607)
- 27 compressed objects within 1 object stream
+ 82 PDF objects out of 1000 (max. 8388607)
+ 55 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  33 words of extra memory for PDF output out of 10000 (max. 10000000)
 
