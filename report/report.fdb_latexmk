@@ -1,6 +1,6 @@
 # Fdb version 3
-["pdflatex"] 1518994863 "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" "report.pdf" "report" 1518994863
-  "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" 1518994862 11303 6150fad0c8ec5df449c16d73f07021b4 ""
+["pdflatex"] 1518998282 "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" "report.pdf" "report" 1518998283
+  "/home/ziutek/uni/sem5/nn_project/LLDEN/report/report.tex" 1518998282 12384 79801d1cdd069a992e3aab89b48e5f19 ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1492575644 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1492575651 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1492575651 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -157,11 +157,11 @@
   "imgs/fig1-v3.png" 1518994368 51668 90babb7c4681d15ed8bf104fb304b5b0 ""
   "imgs/paper-cifar-10.png" 1518957517 53855 26a4881c69ae159a52dd65c9ff605cfa ""
   "imgs/paper-mnist-var.png" 1518957483 57737 6b7ac84b9a0153b6b9a9770f1de7227a ""
-  "report.aux" 1518994863 2072 102f1f42c6b1c47320788755071b36ea ""
-  "report.out" 1518994863 1012 b210df0671fe37f06ee7bc57c91b330f ""
-  "report.tex" 1518994862 11303 6150fad0c8ec5df449c16d73f07021b4 ""
+  "report.aux" 1518998283 2072 e7b65780d273092fb648442dd23c3972 ""
+  "report.out" 1518998283 1012 b210df0671fe37f06ee7bc57c91b330f ""
+  "report.tex" 1518998282 12384 79801d1cdd069a992e3aab89b48e5f19 ""
   (generated)
   "report.aux"
-  "report.log"
-  "report.out"
   "report.pdf"
+  "report.out"
+  "report.log"

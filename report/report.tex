@@ -177,12 +177,26 @@
     \subsubsection{Our graph}
     \includegraphics[height=6cm]{fig1-v3.png}
     \includegraphics[height=6cm]{fig1-s.png}
+    \\
+    \\
+    Comparing the two pairs of graphs, our performance for the baseline models does not differ much from
+    the original. When it comes to the MNIST dataset, results are slightly better on our model. This can
+    be a result of different dataset preprocessing. Other potential factors, that could have affected
+    our model:
+    \begin{itemize}
+        \item Different neural network learning algorithms.
+        \item Different tasks order.
+        \item Differently initialized model parameters.
+    \end{itemize}
+    \bigskip
+    In case of the CNN-L2 network on the CIFAR-10 dataset, we could have not set the regularization parameter
+    correctly, in order to stop catastrophic forgetting.
 
     \subsection{Issues}
 
     Unfortunately, we could not finish our implementation of DEN on course time. Due to various implementation
-    problems we managed to write only the Selective Training algorithm. Solutions that we achieved are
-    from that model.
+    problems we managed to write only the Selective Training algorithm. Solutions that we achieved using this
+    model are called DNN-Selective.
     \\
     \\
     Other issues we encountered:
@@ -205,9 +219,14 @@
 
     \section {Conclusion}
     
-    % To sum up, in this report 
-    % One might conclude, that information given in the paper is insufficient to exactly reproduce 
-    % presented results.
+    To sum up, in this report we introduced important reproducibility metrics and listed some of the
+    missing information. One might conclude, that information given in the paper is insufficient to exactly reproduce 
+    presented results, but we think that the final results are accurate enough and can be easily improved
+    by presenting the missing data.
+    \\
+    \\
+    For now, we do not have plans to complete DEN implementation, however if this report finds any interest,
+    we might do it.
 
     \section{Acknowledgments}
 
